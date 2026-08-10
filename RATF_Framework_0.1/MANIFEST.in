@@ -1,0 +1,11 @@
+include README.md LICENSE CHANGELOG.md SECURITY.md CONTRIBUTING.md
+include run_all_checks.py
+include src/app.py
+recursive-include src/ratf *.py *.typed *.html *.yaml
+recursive-include examples *.py *.md *.mjs *.json
+recursive-include docs *.md *.mmd
+recursive-include validation_tests *.py
+prune results
+prune build
+prune dist
+global-exclude __pycache__ *.py[cod]

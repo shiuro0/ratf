@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>R-ATF Control Room</title>
+  <style>
+    :root { --ink:#172033; --muted:#697386; --line:#dfe4ec; --panel:#fff; --blue:#2867d6; --allow:#14804a; --verify:#b56605; --block:#c13737; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:#f4f6fa; font:14px/1.45 Inter,Segoe UI,Arial,sans-serif; }
+    header { color:#fff; padding:24px 32px; background:linear-gradient(125deg,#13233e,#245fba); }
+    header h1 { margin:0 0 5px; font-size:25px; }
+    header p { margin:0; color:#dbe7ff; }
+    main { max-width:1280px; margin:22px auto; padding:0 18px 40px; display:grid; grid-template-columns:380px 1fr; gap:18px; }
+    .card { background:var(--panel); border:1px solid var(--line); border-radius:13px; padding:18px; box-shadow:0 5px 18px rgba(30,48,80,.05); }
+    h2 { margin:0 0 4px; font-size:17px; }
+    .hint { margin:0 0 16px; color:var(--muted); }
+    label { display:block; color:#354258; font-weight:600; margin:11px 0 5px; }
+    input,select { width:100%; border:1px solid #cdd5e1; border-radius:8px; padding:9px 10px; color:var(--ink); background:#fff; }
+    .weight { display:grid; grid-template-columns:115px 1fr 60px; align-items:center; gap:8px; margin:7px 0; }
+    .weight label { margin:0; font-weight:500; }
+    .weight input[type=range] { padding:0; }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .switch { display:flex; gap:9px; align-items:center; margin-top:14px; }
+    .switch input { width:auto; }
+    button { border:0; border-radius:8px; padding:10px 13px; font-weight:650; cursor:pointer; }
+    .primary { color:#fff; background:var(--blue); }
+    .secondary { color:#234; background:#edf1f7; }
+    .actions { display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
+    .presets { display:flex; flex-wrap:wrap; gap:7px; margin:14px 0; }
+    .presets button { padding:7px 10px; color:#365; background:#eef5f2; font-size:12px; }
+    .decision { display:grid; grid-template-columns:repeat(auto-fit,minmax(135px,1fr)); gap:10px; margin:15px 0; }
+    .research { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:14px; }
+    .metric { padding:13px; border:1px solid var(--line); border-radius:9px; background:#fbfcfe; }
+    .metric span { display:block; color:var(--muted); font-size:12px; }
+    .metric strong { display:block; margin-top:4px; font-size:17px; }
+    .allow { color:var(--allow); } .verify { color:var(--verify); } .block { color:var(--block); }
+    .bars { margin:10px 0 16px; }
+    .bar { display:grid; grid-template-columns:100px 1fr 46px; gap:8px; align-items:center; margin:8px 0; }
+    .track { height:9px; border-radius:9px; background:#e9edf3; overflow:hidden; }
+    .fill { height:100%; background:#4d80d2; }
+    pre { max-height:300px; overflow:auto; margin:0; padding:13px; border-radius:9px; color:#d8e5ff; background:#111c2e; font:12px/1.45 Consolas,monospace; white-space:pre-wrap; }
+    table { width:100%; border-collapse:collapse; font-size:12px; }
+    th,td { text-align:left; padding:8px; border-bottom:1px solid var(--line); }
+    th { color:var(--muted); }
+    #message { min-height:22px; margin-top:10px; color:var(--muted); }
+    @media(max-width:900px) { main{grid-template-columns:1fr}.decision,.research{grid-template-columns:1fr 1fr} }
+  </style>
+</head>
+<body>
+<header>
+  <h1>R-ATF Control Room</h1>
+  <p>Ubah kebijakan, kirim konteks, lalu lihat alasan keputusan framework.</p>
+</header>
+<main>
+  <section class="card">
+    <h2>Kebijakan adaptif</h2>
+    <p class="hint">Bobot otomatis dinormalisasi menjadi total 1.</p>
+    <div id="weights"></div>
+    <div class="row">
+      <div><label for="verify">Ambang verify</label><input id="verify" type="number" min="0" max="1" step="0.01"></div>
+      <div><label for="allow">Ambang allow</label><input id="allow" type="number" min="0" max="1" step="0.01"></div>
+    </div>
+    <label class="switch"><input id="shadow" type="checkbox"> Shadow mode (catat keputusan, tetap teruskan)</label>
+    <div class="actions"><button class="primary" onclick="savePolicy()">Simpan kebijakan</button><button class="secondary" onclick="loadPolicy()">Muat ulang</button></div>
+    <div id="message"></div>
+  </section>
+
+  <div>
+    <section class="card">
+      <h2>Request dari client</h2>
+      <p class="hint">Baseline normal dibuat lebih dahulu agar perubahan konteks dapat dibandingkan secara adil.</p>
+      <div class="presets">
+        <button onclick="preset('normal')">Normal</button>
+        <button onclick="preset('network')">Jaringan baru</button>
+        <button onclick="preset('time')">Waktu berubah</button>
+        <button onclick="preset('copied')">Token dipakai dari konteks lain</button>
+        <button onclick="preset('burst')">Rapid burst</button>
+      </div>
+      <div class="row">
+        <div><label>Policy endpoint</label><select id="policy"><option value="">default</option></select></div>
+        <div><label>IP request</label><input id="ip"></div>
+        <div><label>Perangkat</label><input id="device"></div>
+        <div><label>User-Agent</label><input id="ua"></div>
+        <div><label>Jam UTC</label><input id="hour" type="number" min="0" max="23"></div>
+        <div><label>Jumlah request/window</label><input id="count" type="number" min="1"></div>
+        <div><label>Scope wajib</label><input id="scope"></div>
+      </div>
+      <div class="actions"><button class="primary" onclick="evaluateRequest()">Evaluasi request</button></div>
+    </section>
+
+    <section class="card" style="margin-top:18px">
+      <h2>Hasil keputusan</h2>
+      <div class="decision">
+        <div class="metric"><span>Keputusan kebijakan</span><strong id="decision">-</strong></div>
+        <div class="metric"><span>Yang diberlakukan</span><strong id="effective">-</strong></div>
+        <div class="metric"><span>Trust score</span><strong id="score">-</strong></div>
+        <div class="metric"><span>Alasan utama</span><strong id="reason" style="font-size:13px">-</strong></div>
+        <div class="metric"><span>Policy yang digunakan</span><strong id="usedPolicy" style="font-size:13px">-</strong></div>
+      </div>
+      <div class="bars" id="components"></div>
+      <pre id="json">Jalankan satu evaluasi untuk melihat data lengkap.</pre>
+    </section>
+
+    <section class="card" style="margin-top:18px">
+      <h2>Jejak evaluasi terakhir</h2>
+      <p class="hint">Tidak ada access token mentah yang ditampilkan.</p>
+      <table><thead><tr><th>Skenario</th><th>Endpoint</th><th>Policy</th><th>Score</th><th>Keputusan</th><th>Alasan</th></tr></thead><tbody id="events"></tbody></table>
+    </section>
+
+    <section class="card" id="researchCard" style="margin-top:18px;display:none">
+      <h2>Hasil penelitian final</h2>
+      <p class="hint">Ringkasan ini dibaca dari bukti eksperimen lama, bukan dari request dashboard.</p>
+      <div class="research">
+        <div class="metric"><span>Data keamanan</span><strong id="researchRows">-</strong></div>
+        <div class="metric"><span>Measured run k6</span><strong id="researchRuns">-</strong></div>
+        <div class="metric"><span>Request kontekstual diperbaiki</span><strong id="researchImproved">-</strong></div>
+        <div class="metric"><span>Request sah tanpa friksi</span><strong id="researchLegitimate">-</strong></div>
+        <div class="metric"><span>Pencegahan Standard</span><strong id="researchStandard">-</strong></div>
+        <div class="metric"><span>Pencegahan R-ATF</span><strong id="researchRatf">-</strong></div>
+        <div class="metric"><span>Overhead p95 tertinggi</span><strong id="researchP95">-</strong></div>
+        <div class="metric"><span>Penurunan throughput terbesar</span><strong id="researchThroughput">-</strong></div>
+      </div>
+      <p class="hint" id="researchSource" style="margin-top:13px;margin-bottom:0"></p>
+    </section>
+  </div>
+</main>
+<script>
+const names={ip:'IP',device:'Perangkat',time:'Waktu',frequency:'Frekuensi',token_history:'Riwayat token'};
+const weights=document.getElementById('weights');
+for(const [key,label] of Object.entries(names)){
+  weights.insertAdjacentHTML('beforeend',`<div class="weight"><label>${label}</label><input id="w_${key}" type="range" min="0" max="1" step="0.01" oninput="document.getElementById('n_${key}').value=this.value"><input id="n_${key}" type="number" min="0" max="1" step="0.01" oninput="document.getElementById('w_${key}').value=this.value"></div>`);
+}
+function headers(){const key=localStorage.getItem('ratf_dashboard_key')||'';return {'Content-Type':'application/json','X-Dashboard-Key':key};}
+function escapeHtml(value){return String(value??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+async function loadPolicy(){const r=await fetch('/ratf/dashboard/api/config');const d=await r.json();for(const k of Object.keys(names)){document.getElementById('w_'+k).value=d.weights[k];document.getElementById('n_'+k).value=d.weights[k].toFixed(2);}verify.value=d.verify_threshold;allow.value=d.allow_threshold;shadow.checked=d.shadow_mode;}
+async function savePolicy(){const data={weights:{},verify_threshold:+verify.value,allow_threshold:+allow.value,shadow_mode:shadow.checked};for(const k of Object.keys(names))data.weights[k]=+document.getElementById('n_'+k).value;const r=await fetch('/ratf/dashboard/api/config',{method:'PUT',headers:headers(),body:JSON.stringify(data)});const d=await r.json();message.textContent=r.ok?'Kebijakan tersimpan.':(d.message||d.error);if(r.ok)loadPolicy();}
+function preset(name){const p={normal:['192.168.10.10','device-primary','MarketplaceApp/1.0',10,2],network:['103.10.20.30','device-primary','MarketplaceApp/1.0',10,2],time:['192.168.10.10','device-primary','MarketplaceApp/1.0',23,2],copied:['103.10.20.30','device-attacker','PythonBot/3.0',23,2],burst:['192.168.10.10','device-primary','MarketplaceApp/1.0',10,61]}[name];[ip.value,device.value,ua.value,hour.value,count.value]=p;}
+async function loadPolicies(){const d=await (await fetch('/ratf/dashboard/api/policies')).json();policy.replaceChildren(new Option('default',''));for(const name of Object.keys(d.profiles))policy.add(new Option(name,name));}
+async function evaluateRequest(){const data={scenario:'dashboard_manual',policy_id:policy.value,ip:ip.value,device_id:device.value,user_agent:ua.value,hour:+hour.value,request_count:+count.value,required_scope:scope.value,reset:true};const r=await fetch('/ratf/dashboard/api/evaluate',{method:'POST',headers:headers(),body:JSON.stringify(data)});const d=await r.json();if(!r.ok){json.textContent=JSON.stringify(d,null,2);return;}renderResult(d.result);json.textContent=JSON.stringify(d,null,2);loadEvents();}
+function renderResult(r){decision.textContent=r.decision.toUpperCase();decision.className=r.decision;effective.textContent=r.effective_decision.toUpperCase();effective.className=r.effective_decision;score.textContent=r.trust_score===null?'-':r.trust_score.toFixed(4);reason.textContent=r.reason_code;usedPolicy.textContent=r.policy_name;components.innerHTML='';for(const [k,v] of Object.entries(r.components||{}))components.insertAdjacentHTML('beforeend',`<div class="bar"><span>${k}</span><div class="track"><div class="fill" style="width:${v*100}%"></div></div><strong>${v.toFixed(2)}</strong></div>`);}
+async function loadEvents(){const d=await (await fetch('/ratf/dashboard/api/events')).json();events.innerHTML=d.slice().reverse().slice(0,8).map(e=>`<tr><td>${escapeHtml(e.scenario_label)}</td><td>${escapeHtml(e.method)} ${escapeHtml(e.endpoint)}</td><td>${escapeHtml(e.policy_name)}</td><td>${escapeHtml(e.trust_score??'-')}</td><td class="${['allow','verify','block'].includes(e.decision)?e.decision:''}">${escapeHtml(e.decision)}</td><td>${escapeHtml(e.reason_code)}</td></tr>`).join('');}
+async function loadResearch(){const d=await (await fetch('/ratf/dashboard/api/research-summary')).json();if(!d.available)return;researchCard.style.display='block';researchRows.textContent=d.security_rows.toLocaleString('id-ID')+' baris';researchRuns.textContent=d.measured_runs;researchImproved.textContent=d.contextual_requests_improved.toLocaleString('id-ID');researchLegitimate.textContent=d.legitimate_requests.toLocaleString('id-ID')+' ('+d.legitimate_friction_percent+'% friksi)';researchStandard.textContent=d.standard_prevention_percent+'%';researchRatf.textContent=d.ratf_prevention_percent+'%';researchP95.textContent=d.max_p95_overhead_percent+'%';researchThroughput.textContent=d.largest_throughput_decrease_percent+'%';researchSource.textContent='Sumber: '+d.source+' • quality gate keamanan, data performa, dan seluruh kriteria: LULUS';}
+preset('normal');scope.value='orders:write';loadPolicy();loadPolicies();loadEvents();loadResearch();
+</script>
+</body>
+</html>
