@@ -1,9 +1,0 @@
-{
-  "name": "ratf-nodejs-example",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "start": "node server.mjs",
-    "client": "node run_client.mjs"
-  }
-}
