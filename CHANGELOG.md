@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.1.2 packaged showcase and control room
+
+- Menambahkan showcase web NusaMart yang ikut terpasang dalam wheel dan dapat
+  dijalankan melalui module `ratf.showcase` atau entry point `ratf-showcase`.
+- Menambahkan alur visual allow, verify, exact replay, block konteks, shadow
+  mode, inspeksi request/response, snapshot backend, dan kesiapan produksi.
+- Memperbarui Control Room tanpa menghapus fungsi pengaturan policy dan
+  menjadikan Flask serta Waitress dependency instalasi standar.
+- Menambahkan pemeriksaan integrasi showcase dan instalasi wheel dari working
+  directory di luar repository.
+- Mempertahankan core, eksperimen keamanan, data k6, dan public API v0.1.1 agar
+  pembaruan antarmuka tidak mengubah hasil penelitian lama.
+
 ## v0.1.1 public integration API
 
 - Menambahkan `PolicyProfile` untuk bobot, threshold, shadow mode, dan batas
@@ -11,6 +24,8 @@
 - Menambahkan nama policy pada response header, hasil evaluasi, dan audit.
 - Menambahkan contoh endpoint pembayaran dengan policy lebih ketat serta
   dashboard untuk memilih policy endpoint.
+- Menyederhanakan skrip pada folder contoh Flask dan Node.js yang sudah ada,
+  serta menambahkan snapshot debug untuk histori konteks dan event terbaru.
 - Menambahkan metadata distribusi, dokumentasi publikasi, dan workflow CI/PyPI.
 
 ## v0.1.0 reusable framework

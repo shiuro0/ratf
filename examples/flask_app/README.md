@@ -1,18 +1,25 @@
 # Contoh integrasi Flask
 
-Jalankan `app.py` langsung melalui **Run** di PyCharm, lalu buka:
+Folder ini adalah contoh Python utama dan tetap memakai struktur proyek lama.
+Run `app.py` melalui PyCharm, lalu Run `run_client.py` pada proses terpisah.
 
-- `http://127.0.0.1:5100/ratf/dashboard/` untuk dashboard;
-- jalankan `run_client.py` untuk request normal, exact replay, dan perubahan konteks.
+Client memperlihatkan empat hal:
 
-Endpoint `/api/payments` menunjukkan penggunaan policy `important-api` dengan
-bobot, threshold, dan batas burst tersendiri. Dashboard juga dapat memilih
-policy tersebut dari kolom **Policy endpoint**.
+- request normal yang diteruskan;
+- perubahan konteks yang meminta verifikasi ulang;
+- exact replay yang diblokir;
+- state histori konteks dan integritas audit untuk membantu debugging.
 
-Contoh memakai memory storage agar demonstrasi lokal langsung berjalan. Untuk
-memakai Redis, tambahkan environment variable `RATF_EXAMPLE_STORAGE=redis` dan
-pastikan `REDIS_URL` mengarah ke Redis aplikasi.
+Body dan header berada langsung di bagian atas `run_client.py`, sehingga dapat
+diubah tanpa memahami test runner. Bobot dan threshold berada di `app.py` pada
+policy `important-api`.
 
-`application_idp()` mewakili validasi token milik aplikasi. Dalam penerapan
-sebenarnya, ganti callback tersebut dengan SDK Identity Provider atau gunakan
-`OIDCIntrospectionIdentityProvider`.
+Contoh memakai memory storage agar langsung berjalan. Jika ingin melihat state
+yang sama di Redis, set `RATF_EXAMPLE_STORAGE=redis` dan arahkan `REDIS_URL` ke
+Redis aplikasi. Redis menyimpan profile, history, nonce, idempotency, dan rate
+counter; keputusan audit tetap disimpan dalam log JSONL dengan hash chain.
+
+Endpoint `/app/debug/ratf` hanya untuk pengembangan lokal dan membutuhkan header
+`X-Debug-Key`. Jangan membukanya ke internet. Pengembang aplikasi tidak perlu
+mengulang eksperimen keamanan S1–S15 atau pengujian k6 hanya untuk mencoba
+integrasi ini.

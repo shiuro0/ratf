@@ -110,6 +110,7 @@ def create_app() -> Flask:
                 "framework": "R-ATF 0.1",
                 "dashboard": "/ratf/dashboard/",
                 "authzen": "/access/v1/evaluation",
+                "local_debug": "/app/debug/ratf",
                 "storage": storage.backend_name,
             }
         )
@@ -174,6 +175,16 @@ def create_app() -> Flask:
                 "message": "Hubungkan endpoint ini ke MFA atau IdP milik aplikasi.",
             }
         )
+
+    @app.get("/app/debug/ratf")
+    def debug_ratf():
+        expected_key = os.getenv("RATF_EXAMPLE_DEBUG_KEY", "local-debug-key")
+        if request.headers.get("X-Debug-Key") != expected_key:
+            return jsonify({"message": "Debug key tidak valid"}), 401
+
+        snapshot = ratf.debug_snapshot("family-customer-001", limit=10)
+        snapshot["audit_integrity"] = ratf.audit_logger.verify_integrity()
+        return jsonify(snapshot)
 
     return app
 

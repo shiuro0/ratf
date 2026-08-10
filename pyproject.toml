@@ -24,20 +24,19 @@ classifiers = [
   "Topic :: Security",
 ]
 dependencies = [
+  "Flask>=3,<4",
   "PyJWT>=2.9,<3",
   "redis>=5,<7",
   "python-dotenv>=1,<2",
+  "waitress>=3,<4",
 ]
 
-[project.urls]
-Homepage = "https://github.com/shiuro0/ratf-framework"
-Documentation = "https://github.com/shiuro0/ratf-framework/tree/main/docs"
-Issues = "https://github.com/shiuro0/ratf-framework/issues"
-Source = "https://github.com/shiuro0/ratf-framework"
+[project.scripts]
+ratf-showcase = "ratf.showcase:main"
 
 [project.optional-dependencies]
 flask = ["Flask>=3,<4"]
-demo = ["Flask>=3,<4", "requests>=2.32,<3"]
+demo = ["requests>=2.32,<3"]
 test = ["pytest>=8,<10", "requests>=2.32,<3"]
 research = ["pandas>=2.2,<3", "matplotlib>=3.9,<4", "psutil>=6,<8"]
 documents = ["python-docx>=1.2,<2", "python-pptx>=1,<2"]

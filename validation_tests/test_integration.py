@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import tempfile
 import unittest
 import uuid
+from datetime import datetime, timezone
+from pathlib import Path
 
 from examples.flask_app.app import create_app
+from ratf.showcase import DEMO_EXPERIMENT_KEY, DEMO_TOKEN, create_showcase_app
 from validation_tests.common import request_headers
 
 
@@ -18,6 +22,10 @@ class FlaskExtensionIntegrationTests(unittest.TestCase):
         normal = self.client.post("/api/orders", json={"item": "Phone"}, headers=request_headers())
         self.assertEqual(normal.status_code, 201)
         self.assertEqual(normal.headers["X-RATF-Decision"], "allow")
+        debug = self.app.extensions["ratf"].debug_snapshot("family-customer-001")
+        self.assertEqual(debug["storage_backend"], "memory")
+        self.assertEqual(debug["context_history"]["allowed_request_count"], 1)
+        self.assertGreaterEqual(len(debug["recent_events"]), 1)
 
         nonce, idem = f"n_{uuid.uuid4().hex}", f"i_{uuid.uuid4().hex}"
         headers = request_headers(nonce=nonce, idempotency_key=idem)
@@ -107,3 +115,82 @@ class FlaskExtensionIntegrationTests(unittest.TestCase):
         self.assertEqual(changed.headers["X-RATF-Decision"], "verify")
         self.assertEqual(changed.headers["X-RATF-Effective-Decision"], "allow")
         self.assertEqual(changed.headers["X-RATF-Shadow-Mode"], "true")
+
+
+class InstalledShowcaseIntegrationTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.app = create_showcase_app(
+            audit_path=str(Path(self.temp.name) / "showcase-audit.jsonl")
+        )
+        self.app.testing = True
+        self.client = self.app.test_client()
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    @staticmethod
+    def headers(*, ip="192.168.10.10", device="browser-customer-001", hour=10):
+        context_time = datetime.now(timezone.utc).replace(
+            hour=hour,
+            minute=0,
+            second=0,
+            microsecond=0,
+        )
+        return {
+            "Authorization": f"Bearer {DEMO_TOKEN}",
+            "X-Client-Id": "nusamart-web",
+            "X-Device-Id": device,
+            "X-Request-Timestamp": str(int(context_time.timestamp())),
+            "X-Request-Nonce": f"nonce_{uuid.uuid4().hex}",
+            "Idempotency-Key": f"idem_{uuid.uuid4().hex}",
+            "X-Request-Id": f"request_{uuid.uuid4().hex}",
+            "X-Scenario-Label": "showcase_validation",
+            "X-Experiment-Key": DEMO_EXPERIMENT_KEY,
+            "X-Test-Source-IP": ip,
+            "X-Test-Context-Time": context_time.isoformat(),
+            "User-Agent": "NusaMartBrowser/1.0",
+        }
+
+    def test_storefront_and_runtime_are_packaged_with_framework(self):
+        page = self.client.get("/")
+        self.assertEqual(page.status_code, 200)
+        self.assertIn(b"NusaMart", page.data)
+        self.assertIn(b"R-ATF Control Room", page.data)
+
+        bootstrap = self.client.get("/app/api/bootstrap").get_json()
+        self.assertEqual(bootstrap["framework"]["distribution"], "ratf-framework")
+        self.assertEqual(bootstrap["framework"]["policy"]["name"], "nusamart-checkout")
+
+        runtime = self.client.get("/app/api/runtime").get_json()
+        self.assertTrue(runtime["deployment"]["demonstration_ready"])
+        self.assertTrue(runtime["deployment"]["integration_ready"])
+        self.assertFalse(runtime["deployment"]["production_ready"])
+
+    def test_allow_verify_block_and_replay_are_visible_to_client(self):
+        body = {"product": "Kopi Gayo Pilihan", "quantity": 1, "unit_price": 89000}
+        normal_headers = self.headers()
+        normal = self.client.post("/api/store/orders", json=body, headers=normal_headers)
+        self.assertEqual(normal.status_code, 201)
+        self.assertEqual(normal.headers["X-RATF-Decision"], "allow")
+
+        changed = self.client.post(
+            "/api/store/orders",
+            json=body,
+            headers=self.headers(ip="103.77.14.90", device="unknown-device-884"),
+        )
+        self.assertEqual(changed.status_code, 401)
+        self.assertEqual(changed.headers["X-RATF-Decision"], "verify")
+        self.assertEqual(changed.get_json()["step_up"]["challenge_type"], "one_time_password")
+
+        high_risk = self.client.post(
+            "/api/store/orders",
+            json=body,
+            headers=self.headers(ip="45.12.210.77", device="automation-device-991", hour=23),
+        )
+        self.assertEqual(high_risk.status_code, 403)
+        self.assertEqual(high_risk.headers["X-RATF-Decision"], "block")
+
+        replay = self.client.post("/api/store/orders", json=body, headers=normal_headers)
+        self.assertEqual(replay.status_code, 409)
+        self.assertEqual(replay.get_json()["reason_code"], "nonce_reused")

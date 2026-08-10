@@ -222,6 +222,34 @@ class RATF:
         self.policies[profile.name] = profile
         return profile
 
+    def debug_snapshot(self, family_id: str | None = None, *, limit: int = 20) -> dict[str, Any]:
+        """Return safe runtime information for application-owned debugging.
+
+        Raw access tokens, request signatures, and Redis credentials are never
+        included. Applications must protect any HTTP endpoint that exposes this
+        information and should disable it outside development environments.
+        """
+
+        if self.engine is None or self.storage is None:
+            raise RuntimeError("RATF belum diinisialisasi pada aplikasi")
+
+        snapshot: dict[str, Any] = {
+            "storage_backend": self.storage.backend_name,
+            "recent_events": self.engine.recent_events(limit),
+        }
+        if family_id is not None:
+            key = str(family_id).strip()
+            if not key:
+                raise ValueError("family_id tidak boleh kosong")
+            snapshot.update(
+                {
+                    "family_id": key,
+                    "context_profile": self.storage.get_json(f"family_context:{key}") or {},
+                    "context_history": self.storage.get_json(f"family_history:{key}") or {},
+                }
+            )
+        return snapshot
+
     @staticmethod
     def _make_policy(
         name: str,

@@ -4,7 +4,7 @@ The base package stays importable without Flask. Flask-specific objects are
 loaded only when requested.
 """
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 from .core import CoreConfig, PolicyProfile
 

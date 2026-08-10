@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NusaMart — R-ATF Integration Showcase</title>
+  <style>
+    :root {
+      --navy:#102a43; --ink:#193247; --muted:#66788a; --paper:#ffffff;
+      --canvas:#f4f7f8; --line:#dce5e8; --teal:#087f78; --teal-soft:#e6f5f2;
+      --orange:#e36c24; --orange-soft:#fff0e5; --allow:#087f5b; --verify:#b45f06;
+      --block:#c92a2a; --shadow:0 18px 45px rgba(16,42,67,.09);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;color:var(--ink);background:var(--canvas);font:15px/1.55 Inter,Segoe UI,Arial,sans-serif}
+    button,input{font:inherit}
+    button{cursor:pointer}
+    .topbar{background:#0d2236;color:#d9e7ee;font-size:12px;text-align:center;padding:7px 18px}
+    nav{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:15px max(22px,calc((100vw - 1180px)/2));background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+    .brand{display:flex;align-items:center;gap:11px;color:var(--navy);text-decoration:none;font-weight:850;font-size:20px;letter-spacing:-.5px}
+    .brand-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;color:#fff;background:var(--teal);box-shadow:0 8px 18px rgba(8,127,120,.25)}
+    .navlinks{display:flex;align-items:center;gap:22px}.navlinks a{color:#486173;text-decoration:none;font-weight:650;font-size:13px}
+    .security-pill{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:var(--teal-soft);color:#056b65;font-size:12px;font-weight:750}
+    .pulse{width:8px;height:8px;border-radius:50%;background:#14a879;box-shadow:0 0 0 5px rgba(20,168,121,.13)}
+    .hero{background:linear-gradient(118deg,#102a43 0%,#174660 58%,#087f78 120%);color:#fff}
+    .hero-inner{max-width:1180px;margin:auto;padding:62px 22px 56px;display:grid;grid-template-columns:1.2fr .8fr;gap:56px;align-items:center}
+    .eyebrow{display:inline-flex;gap:8px;align-items:center;padding:7px 11px;border:1px solid rgba(255,255,255,.22);border-radius:999px;color:#d6f5ee;background:rgba(255,255,255,.08);font-size:12px;font-weight:700}
+    h1{max-width:680px;margin:20px 0 16px;font-size:clamp(38px,5.6vw,67px);line-height:1.02;letter-spacing:-2.5px}
+    .hero p{max-width:650px;margin:0;color:#d5e5eb;font-size:17px}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+    .btn{border:0;border-radius:11px;padding:12px 17px;font-weight:750;transition:.18s transform,.18s box-shadow,.18s background}
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{color:#fff;background:var(--orange);box-shadow:0 10px 22px rgba(227,108,36,.25)}
+    .btn-light{color:#17364d;background:#fff}.btn-ghost{color:#dcedf2;background:transparent;border:1px solid rgba(255,255,255,.28)}
+    .hero-card{padding:22px;border:1px solid rgba(255,255,255,.2);border-radius:20px;background:rgba(255,255,255,.1);box-shadow:0 25px 60px rgba(0,0,0,.16);backdrop-filter:blur(12px)}
+    .hero-card h3{margin:0 0 16px;font-size:14px;color:#e7f5f3}.flow-step{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid rgba(255,255,255,.13)}
+    .flow-step:first-of-type{border-top:0}.step-no{display:grid;place-items:center;flex:0 0 28px;height:28px;border-radius:9px;background:rgba(255,255,255,.15);font-size:12px;font-weight:800}.flow-step strong{display:block;font-size:13px}.flow-step span{color:#bed2da;font-size:12px}
+    .container{max-width:1180px;margin:auto;padding:42px 22px 70px}
+    .section-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:20px}.section-head h2{margin:0;font-size:28px;letter-spacing:-.7px}.section-head p{max-width:560px;margin:5px 0 0;color:var(--muted)}
+    .catalog-layout{display:grid;grid-template-columns:1fr 330px;gap:20px;align-items:start}
+    .products{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+    .product{overflow:hidden;border:1px solid var(--line);border-radius:17px;background:var(--paper);box-shadow:0 8px 28px rgba(16,42,67,.05);transition:.18s transform,.18s border}
+    .product:hover,.product.selected{transform:translateY(-3px);border-color:#70bcb6}.product-visual{display:grid;place-items:center;height:160px;font-size:58px;background:linear-gradient(145deg,#edf8f5,#d9efea)}
+    .product:nth-child(2) .product-visual{background:linear-gradient(145deg,#fff5e9,#fae5cb)}.product:nth-child(3) .product-visual{background:linear-gradient(145deg,#edf2fb,#dbe5f6)}
+    .product-body{padding:16px}.tag{display:inline-block;color:var(--teal);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.7px}.product h3{margin:6px 0 3px;font-size:16px}.product p{min-height:42px;margin:0;color:var(--muted);font-size:12px}.price{display:flex;align-items:center;justify-content:space-between;margin-top:14px;font-weight:850;color:var(--navy)}
+    .choose{border:0;border-radius:9px;padding:7px 10px;color:var(--teal);background:var(--teal-soft);font-size:12px;font-weight:750}
+    .cart{position:sticky;top:86px;padding:20px;border:1px solid var(--line);border-radius:17px;background:var(--paper);box-shadow:var(--shadow)}
+    .cart-title{display:flex;align-items:center;justify-content:space-between}.cart-title h3{margin:0;font-size:18px}.cart-count{padding:4px 9px;border-radius:999px;color:var(--teal);background:var(--teal-soft);font-size:11px;font-weight:750}
+    .cart-product{margin:17px 0;padding:14px;border-radius:13px;background:#f6f9fa}.cart-product strong{display:block}.cart-product span{color:var(--muted);font-size:12px}
+    .qty{display:flex;align-items:center;justify-content:space-between;margin:14px 0}.qty-control{display:flex;align-items:center;gap:12px}.qty-control button{width:30px;height:30px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--navy)}
+    .total{display:flex;align-items:end;justify-content:space-between;margin:18px 0;border-top:1px dashed #cad5da;padding-top:16px}.total span{color:var(--muted);font-size:12px}.total strong{font-size:21px}
+    .checkout{width:100%}.cart-note{display:flex;gap:8px;margin:12px 0 0;color:var(--muted);font-size:11px}
+    .lab{margin-top:45px;border:1px solid #cadae0;border-radius:22px;background:#fff;box-shadow:var(--shadow);overflow:hidden}
+    .lab-header{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:22px 24px;color:#fff;background:#112f45}.lab-header h2{margin:0;font-size:22px}.lab-header p{margin:4px 0 0;color:#bfd2dc;font-size:13px}.lab-link{color:#fff;text-decoration:none;padding:9px 12px;border:1px solid rgba(255,255,255,.22);border-radius:10px;font-size:12px;font-weight:700}
+    .lab-grid{display:grid;grid-template-columns:320px 1fr;min-height:620px}
+    .scenarios{padding:22px;border-right:1px solid var(--line);background:#f8fafb}.scenarios h3{margin:0 0 5px;font-size:14px}.scenarios>p{margin:0 0 16px;color:var(--muted);font-size:12px}
+    .scenario{width:100%;display:grid;grid-template-columns:38px 1fr;gap:10px;text-align:left;margin:9px 0;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+    .scenario:hover,.scenario.active{border-color:#72b8b3;box-shadow:0 8px 20px rgba(8,127,120,.08)}.scenario-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;font-weight:900}.s-allow{color:var(--allow);background:#e7f6ef}.s-verify{color:var(--verify);background:#fff2df}.s-block{color:var(--block);background:#fdeaea}.scenario strong{display:block;font-size:13px}.scenario small{display:block;color:var(--muted);font-size:11px;line-height:1.35}
+    .shadow-box{margin-top:18px;padding:14px;border-radius:12px;background:#edf3f6}.toggle-row{display:flex;justify-content:space-between;align-items:center;gap:10px}.toggle{position:relative;width:44px;height:24px}.toggle input{opacity:0;width:0;height:0}.slider{position:absolute;inset:0;border-radius:999px;background:#a9b7c0;transition:.2s}.slider:before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;border-radius:50%;background:#fff;transition:.2s}.toggle input:checked+.slider{background:var(--teal)}.toggle input:checked+.slider:before{transform:translateX(20px)}
+    .workbench{padding:22px;min-width:0}.result-strip{display:grid;grid-template-columns:1.1fr .75fr 1fr;gap:10px;margin-bottom:16px}.result-box{padding:13px;border:1px solid var(--line);border-radius:12px;background:#fbfcfd}.result-box span{display:block;color:var(--muted);font-size:11px}.result-box strong{display:block;margin-top:3px;font-size:16px}.decision-text.allow{color:var(--allow)}.decision-text.verify{color:var(--verify)}.decision-text.block{color:var(--block)}
+    .status-message{display:flex;gap:11px;align-items:flex-start;min-height:64px;padding:14px;border-radius:12px;background:#edf3f6}.status-message strong{display:block}.status-message span{color:var(--muted);font-size:12px}.status-dot{flex:0 0 11px;height:11px;margin-top:5px;border-radius:50%;background:#94a6b2}.status-message.allow .status-dot{background:var(--allow)}.status-message.verify .status-dot{background:var(--verify)}.status-message.block .status-dot{background:var(--block)}
+    .tabs{display:flex;gap:5px;margin:18px 0 10px;padding:4px;border-radius:11px;background:#edf2f4}.tab{flex:1;border:0;border-radius:8px;padding:9px;color:#587080;background:transparent;font-size:12px;font-weight:750}.tab.active{color:var(--navy);background:#fff;box-shadow:0 3px 10px rgba(16,42,67,.08)}
+    .panel{display:none}.panel.active{display:block}.code{min-height:250px;max-height:340px;overflow:auto;margin:0;padding:16px;border-radius:12px;color:#d8e6ed;background:#0e2232;font:12px/1.55 Consolas,Monaco,monospace;white-space:pre-wrap;word-break:break-word}
+    .component-list{margin-top:15px}.component{display:grid;grid-template-columns:84px 1fr 38px;gap:9px;align-items:center;margin:8px 0;font-size:12px}.track{height:8px;border-radius:999px;background:#e4ebee;overflow:hidden}.fill{height:100%;border-radius:999px;background:var(--teal)}
+    .backend-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.backend-card{padding:14px;border:1px solid var(--line);border-radius:12px;background:#fbfcfd}.backend-card h4{margin:0 0 9px;font-size:13px}.backend-card p{margin:0;color:var(--muted);font-size:12px;word-break:break-word}.check{display:grid;grid-template-columns:15px 1fr;gap:8px;margin:9px 0;font-size:11px}.check b{display:block}.ok{color:var(--allow)}.notyet{color:var(--block)}
+    .events{margin-top:18px}.events h3{margin:0 0 9px;font-size:14px}.event{display:grid;grid-template-columns:70px 1fr 60px;gap:9px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:11px}.event:first-of-type{border-top:0}.badge{display:inline-block;text-align:center;border-radius:999px;padding:3px 7px;font-weight:800;text-transform:uppercase}.badge.allow{color:var(--allow);background:#e7f6ef}.badge.verify{color:var(--verify);background:#fff2df}.badge.block{color:var(--block);background:#fdeaea}
+    .proof{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}.proof-card{padding:18px;border:1px solid var(--line);border-radius:15px;background:#fff}.proof-card span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.6px}.proof-card strong{display:block;margin:5px 0;color:var(--navy)}.proof-card p{margin:0;color:var(--muted);font-size:12px}
+    footer{padding:28px 22px;text-align:center;color:#718391;border-top:1px solid var(--line);background:#fff;font-size:12px}
+    .loading{opacity:.6;pointer-events:none}.toast{position:fixed;right:20px;bottom:20px;z-index:30;max-width:360px;padding:13px 16px;border-radius:11px;color:#fff;background:#16384f;box-shadow:var(--shadow);transform:translateY(90px);opacity:0;transition:.25s}.toast.show{transform:none;opacity:1}
+    @media(max-width:960px){.hero-inner,.catalog-layout,.lab-grid{grid-template-columns:1fr}.hero-card{display:none}.products{grid-template-columns:repeat(2,1fr)}.cart{position:static}.scenarios{border-right:0;border-bottom:1px solid var(--line)}.proof{grid-template-columns:1fr}.navlinks a{display:none}}
+    @media(max-width:620px){.products,.result-strip,.backend-grid{grid-template-columns:1fr}.hero-inner{padding-top:44px}h1{font-size:42px}.section-head,.lab-header{align-items:flex-start;flex-direction:column}.workbench,.scenarios{padding:16px}.security-pill{display:none}}
+  </style>
+</head>
+<body>
+  <div class="topbar">Aplikasi contoh mandiri • seluruh produk, token, dan transaksi di halaman ini adalah data fiktif</div>
+  <nav>
+    <a class="brand" href="/"><span class="brand-mark">N</span>NusaMart</a>
+    <div class="navlinks"><a href="#catalog">Produk</a><a href="#security-lab">Uji keamanan</a><a href="/ratf/dashboard/">R-ATF Control Room</a></div>
+    <div class="security-pill"><span class="pulse"></span>R-ATF aktif • v{{ framework_version }}</div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div>
+        <span class="eyebrow">Aplikasi pengembang + paket ratf-framework</span>
+        <h1>Belanja nyaman, akses penting tetap terjaga.</h1>
+        <p>NusaMart memperlihatkan bagaimana aplikasi Flask milik pengembang dapat melindungi endpoint checkout memakai R-ATF, tanpa menyalin source framework ke proyeknya.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" onclick="document.getElementById('catalog').scrollIntoView()">Mulai belanja</button>
+          <button class="btn btn-light" onclick="runScenario('normal')">Coba request normal</button>
+          <a class="btn btn-ghost" href="/ratf/dashboard/" style="text-decoration:none">Buka control room</a>
+        </div>
+      </div>
+      <aside class="hero-card">
+        <h3>Satu request, tiga kemungkinan keputusan</h3>
+        <div class="flow-step"><span class="step-no">1</span><div><strong>Token diperiksa oleh aplikasi</strong><span>R-ATF terhubung ke Identity Provider, bukan mengambil alih login.</span></div></div>
+        <div class="flow-step"><span class="step-no">2</span><div><strong>Konteks dinilai</strong><span>IP, perangkat, waktu, frekuensi, dan riwayat token membentuk trust score.</span></div></div>
+        <div class="flow-step"><span class="step-no">3</span><div><strong>Allow, verify, atau block</strong><span>Backend menerima request hanya sesuai keputusan dan policy endpoint.</span></div></div>
+      </aside>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="catalog">
+      <div class="section-head"><div><h2>Produk pilihan Nusantara</h2><p>Pilih produk lalu lakukan checkout. Tombol checkout mengirim request HTTP sungguhan ke backend lokal yang dilindungi R-ATF.</p></div><span class="security-pill">Storage: {{ storage_backend }}</span></div>
+      <div class="catalog-layout">
+        <div class="products">
+          <article class="product selected" data-name="Kopi Gayo Pilihan" data-price="89000" onclick="chooseProduct(this)"><div class="product-visual">☕</div><div class="product-body"><span class="tag">Kopi lokal</span><h3>Kopi Gayo Pilihan</h3><p>Arabika single origin dengan karakter cokelat dan rempah.</p><div class="price"><span>Rp89.000</span><button class="choose">Pilih</button></div></div></article>
+          <article class="product" data-name="Tenun Sumba Mini" data-price="149000" onclick="chooseProduct(this)"><div class="product-visual">🧵</div><div class="product-body"><span class="tag">Kriya</span><h3>Tenun Sumba Mini</h3><p>Kain dekorasi meja dari pengrajin lokal pilihan.</p><div class="price"><span>Rp149.000</span><button class="choose">Pilih</button></div></div></article>
+          <article class="product" data-name="Jurnal Daur Ulang" data-price="59000" onclick="chooseProduct(this)"><div class="product-visual">📘</div><div class="product-body"><span class="tag">Alat tulis</span><h3>Jurnal Daur Ulang</h3><p>Buku catatan bertekstur dengan kertas ramah lingkungan.</p><div class="price"><span>Rp59.000</span><button class="choose">Pilih</button></div></div></article>
+        </div>
+        <aside class="cart">
+          <div class="cart-title"><h3>Ringkasan pesanan</h3><span class="cart-count">1 produk</span></div>
+          <div class="cart-product"><strong id="cartName">Kopi Gayo Pilihan</strong><span>Pengiriman reguler • alamat contoh</span></div>
+          <div class="qty"><span>Jumlah</span><div class="qty-control"><button onclick="changeQty(-1)">−</button><strong id="qty">1</strong><button onclick="changeQty(1)">+</button></div></div>
+          <div class="total"><span>Total pembayaran</span><strong id="total">Rp89.000</strong></div>
+          <button class="btn btn-primary checkout" onclick="runScenario('normal')">Checkout aman</button>
+          <p class="cart-note">🛡️ Endpoint checkout dilindungi policy <strong>nusamart-checkout</strong>.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="lab" id="security-lab">
+      <div class="lab-header"><div><h2>Meja uji integrasi</h2><p>Ubah kondisi request dari sisi client, lalu periksa keputusan framework dan state server.</p></div><a class="lab-link" href="/ratf/dashboard/">Atur bobot & threshold →</a></div>
+      <div class="lab-grid">
+        <aside class="scenarios">
+          <h3>Pilih kondisi client</h3><p>Setiap pilihan mengirim request nyata. Skenario berisiko menyiapkan satu histori normal terlebih dahulu agar perbandingan adil.</p>
+          <button class="scenario active" data-scenario="normal" onclick="runScenario('normal')"><span class="scenario-icon s-allow">A</span><span><strong>Perangkat dan jaringan biasa</strong><small>Token serta konteks konsisten. Target: allow.</small></span></button>
+          <button class="scenario" data-scenario="changed" onclick="runScenario('changed')"><span class="scenario-icon s-verify">V</span><span><strong>Token berpindah konteks</strong><small>IP dan perangkat berubah. Target: verify.</small></span></button>
+          <button class="scenario" data-scenario="replay" onclick="runScenario('replay')"><span class="scenario-icon s-block">R</span><span><strong>Request dikirim ulang persis</strong><small>Nonce dan idempotency key sama. Target: block.</small></span></button>
+          <button class="scenario" data-scenario="highrisk" onclick="runScenario('highrisk')"><span class="scenario-icon s-block">B</span><span><strong>Konteks berisiko tinggi</strong><small>IP, perangkat, dan jam akses berubah. Target: block.</small></span></button>
+          <div class="shadow-box"><div class="toggle-row"><div><strong style="font-size:12px">Shadow mode</strong><div style="color:var(--muted);font-size:11px">Amati tanpa menahan keputusan kontekstual</div></div><label class="toggle"><input id="shadowToggle" type="checkbox" onchange="setShadowMode(this.checked)"><span class="slider"></span></label></div></div>
+        </aside>
+
+        <div class="workbench" id="workbench">
+          <div class="result-strip">
+            <div class="result-box"><span>Keputusan policy</span><strong id="decision" class="decision-text">Belum diuji</strong></div>
+            <div class="result-box"><span>HTTP status</span><strong id="httpStatus">—</strong></div>
+            <div class="result-box"><span>Trust score / alasan</span><strong id="scoreReason">—</strong></div>
+          </div>
+          <div class="status-message" id="statusMessage"><span class="status-dot"></span><div><strong>Silakan jalankan satu kondisi client.</strong><span>Request dan response akan terlihat di bawah, termasuk header X-RATF.</span></div></div>
+
+          <div class="tabs">
+            <button class="tab active" data-panel="requestPanel" onclick="showPanel(this)">Request client</button>
+            <button class="tab" data-panel="responsePanel" onclick="showPanel(this)">Response server</button>
+            <button class="tab" data-panel="backendPanel" onclick="showPanel(this)">Backend & kesiapan</button>
+          </div>
+          <section class="panel active" id="requestPanel"><pre class="code" id="requestCode">Request belum dikirim.</pre></section>
+          <section class="panel" id="responsePanel"><pre class="code" id="responseCode">Response belum diterima.</pre><div class="component-list" id="components"></div></section>
+          <section class="panel" id="backendPanel">
+            <div class="backend-grid">
+              <div class="backend-card"><h4>Bukti paket terpasang</h4><p id="installProof">Memuat informasi distribusi…</p></div>
+              <div class="backend-card"><h4>State dan audit server</h4><p id="stateProof">Memuat state framework…</p></div>
+            </div>
+            <div class="backend-card" style="margin-top:12px"><h4>Penilaian kesiapan aktual</h4><div id="readiness"></div></div>
+            <pre class="code" id="runtimeCode" style="min-height:150px;margin-top:12px">Memuat snapshot backend…</pre>
+          </section>
+
+          <div class="events"><h3>Jejak keputusan pada proses server</h3><div id="events"><p style="color:var(--muted);font-size:12px">Belum ada event.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="proof">
+      <article class="proof-card"><span>Integrasi aplikasi</span><strong>Dekorator pada endpoint</strong><p>Fungsi bisnis tetap milik NusaMart; R-ATF berjalan sebelum fungsi checkout dipanggil.</p></article>
+      <article class="proof-card"><span>Inspeksi teknis</span><strong>DevTools → Network</strong><p>Buka request <code>/api/store/orders</code> untuk melihat Authorization, nonce, body, status, dan header X-RATF.</p></article>
+      <article class="proof-card"><span>Posisi produk</span><strong>Alpha, belum skala besar</strong><p>Paket dapat dipasang dan diintegrasikan; produksi tetap membutuhkan IdP, Redis HA, HTTPS, secret manager, dan observability.</p></article>
+    </section>
+  </main>
+
+  <footer>NusaMart adalah aplikasi fiktif untuk demonstrasi integrasi R-ATF. Tidak berafiliasi dengan layanan komersial mana pun.</footer>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let bootstrapData=null, selectedProduct={name:'Kopi Gayo Pilihan',price:89000}, quantity=1, shadowEnabled=false;
+
+    const rupiah=value=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(value);
+    const uuid=()=>crypto.randomUUID().replaceAll('-','');
+    const contextTime=hour=>{const d=new Date();d.setUTCHours(hour,0,0,0);return d.toISOString()};
+    const pretty=value=>JSON.stringify(value,null,2);
+    const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+
+    function toastMessage(message){toast.textContent=message;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2500)}
+    function chooseProduct(card){document.querySelectorAll('.product').forEach(x=>x.classList.remove('selected'));card.classList.add('selected');selectedProduct={name:card.dataset.name,price:Number(card.dataset.price)};cartName.textContent=selectedProduct.name;renderTotal()}
+    function changeQty(delta){quantity=Math.max(1,Math.min(10,quantity+delta));qty.textContent=quantity;renderTotal()}
+    function renderTotal(){total.textContent=rupiah(selectedProduct.price*quantity)}
+    function showPanel(button){document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));button.classList.add('active');document.getElementById(button.dataset.panel).classList.add('active')}
+
+    function requestSpec({scenario='normal',ip='192.168.10.10',device='browser-customer-001',hour=10}={}){
+      const headers={
+        'Authorization':`Bearer ${bootstrapData.client.access_token}`,
+        'Content-Type':'application/json',
+        'X-Client-Id':bootstrapData.client.client_id,
+        'X-Device-Id':device,
+        'X-Request-Timestamp':String(Math.floor(Date.now()/1000)),
+        'X-Request-Nonce':`nonce_${uuid()}`,
+        'Idempotency-Key':`idem_${uuid()}`,
+        'X-Request-Id':`request_${uuid()}`,
+        'X-Scenario-Label':scenario,
+        'X-Experiment-Key':bootstrapData.client.experiment_key,
+        'X-Test-Source-IP':ip,
+        'X-Test-Context-Time':contextTime(hour)
+      };
+      return {method:'POST',url:'/api/store/orders',headers,body:{product:selectedProduct.name,quantity,unit_price:selectedProduct.price}};
+    }
+
+    async function send(spec,{display=true}={}){
+      const started=performance.now();
+      const response=await fetch(spec.url,{method:spec.method,headers:spec.headers,body:JSON.stringify(spec.body)});
+      const payload=await response.json();
+      const responseHeaders=Object.fromEntries([...response.headers.entries()].filter(([name])=>name.startsWith('x-ratf')||['content-type','www-authenticate','cache-control'].includes(name)));
+      const result={status:response.status,elapsed_ms:Number((performance.now()-started).toFixed(2)),payload,responseHeaders,request:spec};
+      if(display){renderExchange(result)}
+      return result;
+    }
+
+    async function runScenario(kind){
+      if(!bootstrapData){toastMessage('Konfigurasi aplikasi masih dimuat.');return}
+      document.querySelectorAll('.scenario').forEach(x=>x.classList.toggle('active',x.dataset.scenario===kind));
+      workbench.classList.add('loading');
+      try{
+        await fetch('/app/api/reset',{method:'POST'});
+        if(shadowEnabled)await fetch('/app/api/shadow-mode',{method:'POST',headers:{'Content-Type':'application/json'},body:pretty({enabled:true})});
+        const baselineSpec=requestSpec({scenario:kind==='normal'?'normal':'baseline_normal'});
+        let result;
+        if(kind==='normal'){
+          result=await send(baselineSpec,{display:false});
+        }else{
+          await send(baselineSpec,{display:false});
+          if(kind==='changed')result=await send(requestSpec({scenario:'token_context_changed',ip:'103.77.14.90',device:'unknown-device-884',hour:10}),{display:false});
+          if(kind==='highrisk')result=await send(requestSpec({scenario:'high_risk_context',ip:'45.12.210.77',device:'automation-device-991',hour:23}),{display:false});
+          if(kind==='replay')result=await send(baselineSpec,{display:false});
+        }
+        renderExchange(result);
+        await loadRuntime(result.request.headers['X-Request-Id']);
+        document.getElementById('security-lab').scrollIntoView({block:'start'});
+      }catch(error){statusMessage.className='status-message block';statusMessage.innerHTML=`<span class="status-dot"></span><div><strong>Server tidak dapat dihubungi.</strong><span>${error.message}</span></div>`}
+      finally{workbench.classList.remove('loading')}
+    }
+
+    function renderExchange(result){
+      const decisionValue=(result.responseHeaders['x-ratf-decision']||result.payload.decision||'unknown').toLowerCase();
+      const effective=(result.responseHeaders['x-ratf-effective-decision']||result.payload.effective_decision||decisionValue).toLowerCase();
+      const score=result.responseHeaders['x-ratf-score']??result.payload.trust_score;
+      const reason=result.responseHeaders['x-ratf-reason']||result.payload.reason_code||'trust_score_allow';
+      decision.textContent=decisionValue.toUpperCase();decision.className=`decision-text ${decisionValue}`;
+      httpStatus.textContent=`${result.status} • ${result.elapsed_ms} ms`;
+      scoreReason.textContent=`${score??'—'} / ${reason}`;
+      statusMessage.className=`status-message ${decisionValue}`;
+      const explanations={allow:'Konteks konsisten. Request diteruskan dan fungsi checkout NusaMart dijalankan.',verify:'Request ditahan. Step-up hook mengembalikan challenge verifikasi milik aplikasi.',block:'Request dihentikan sebelum fungsi checkout dijalankan.'};
+      statusMessage.innerHTML=`<span class="status-dot"></span><div><strong>${explanations[decisionValue]||'Keputusan diterima.'}</strong><span>Keputusan policy: ${decisionValue}; tindakan aktual: ${effective}${shadowEnabled?' (shadow mode aktif)':''}.</span></div>`;
+      requestCode.textContent=`${result.request.method} ${location.origin}${result.request.url}\n\nHEADERS\n${pretty(result.request.headers)}\n\nBODY\n${pretty(result.request.body)}`;
+      responseCode.textContent=`HTTP ${result.status}\n\nR-ATF RESPONSE HEADERS\n${pretty(result.responseHeaders)}\n\nBODY\n${pretty(result.payload)}`;
+    }
+
+    async function setShadowMode(enabled){shadowEnabled=enabled;await fetch('/app/api/shadow-mode',{method:'POST',headers:{'Content-Type':'application/json'},body:pretty({enabled})});toastMessage(enabled?'Shadow mode diaktifkan.':'Shadow mode dinonaktifkan.')}
+
+    async function loadRuntime(requestId=null){
+      const data=await (await fetch('/app/api/runtime')).json();
+      const state=data.state||{},history=state.context_history||{},eventsList=state.recent_events||[];
+      installProof.innerHTML=`<strong>${data.distribution.name} ${data.distribution.version}</strong><br>${data.distribution.loaded_from}`;
+      stateProof.innerHTML=`Backend: <strong>${state.storage_backend}</strong><br>Request allow dipelajari: <strong>${history.allowed_request_count||0}</strong><br>Audit: <strong>${data.audit_integrity.valid?'VALID':'TIDAK VALID'}</strong> (${data.audit_integrity.entries} entri)`;
+      readiness.innerHTML=data.deployment.checks.map(item=>`<div class="check"><span class="${item.ready?'ok':'notyet'}">${item.ready?'●':'○'}</span><div><b>${item.name}</b>${item.detail}</div></div>`).join('');
+      runtimeCode.textContent=pretty({classification:data.deployment.classification,context_profile:state.context_profile,context_history:history,audit_integrity:data.audit_integrity});
+      events.innerHTML=eventsList.length?eventsList.slice().reverse().slice(0,6).map(event=>`<div class="event"><span class="badge ${event.decision}">${event.decision}</span><span><strong>${event.scenario_label}</strong><br>${event.reason_code} • ${event.policy_name}</span><strong>${event.trust_score??'—'}</strong></div>`).join(''):'<p style="color:var(--muted);font-size:12px">Belum ada event.</p>';
+      const selected=eventsList.find(event=>event.request_id===requestId)||eventsList.at(-1);
+      components.innerHTML='';
+      if(selected&&selected.score_components){
+        const labels={Cip:'IP',Cdevice:'Perangkat',Ctime:'Waktu',Freq:'Frekuensi',Htoken:'Riwayat token'};
+        components.innerHTML='<strong style="font-size:12px">Komponen trust score pada request ini</strong>'+Object.entries(selected.score_components).map(([key,value])=>`<div class="component"><span>${labels[key]||key}</span><div class="track"><div class="fill" style="width:${value*100}%"></div></div><strong>${Number(value).toFixed(2)}</strong></div>`).join('');
+      }
+    }
+
+    async function initialize(){
+      try{bootstrapData=await (await fetch('/app/api/bootstrap')).json();await loadRuntime()}
+      catch(error){toastMessage('Gagal memuat konfigurasi: '+error.message)}
+    }
+    initialize();renderTotal();
+  </script>
+</body>
+</html>

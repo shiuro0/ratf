@@ -1,72 +1,61 @@
-from __future__ import annotations
-
-import time
-import uuid
 from datetime import datetime, timezone
+import uuid
 
 import requests
 
+
 BASE_URL = "http://127.0.0.1:5100"
-TOKEN = "app-token-alice"
-BODY = {"item": "Smartphone", "quantity": 1}
+BODY = {"item": "Buku Pemrograman", "quantity": 1}
 
 
-def send(
-    label,
-    ip,
-    user_agent,
-    hour,
-    nonce=None,
-    idempotency_key=None,
-    endpoint="/api/orders",
-    body=None,
-):
-    nonce = nonce or f"nonce_{uuid.uuid4().hex}"
-    idempotency_key = idempotency_key or f"idem_{uuid.uuid4().hex}"
-    context_time = datetime.now(timezone.utc).replace(hour=hour, minute=0, second=0).isoformat()
-    headers = {
-        "Authorization": f"Bearer {TOKEN}",
-        "X-Client-Id": "marketplace-app",
-        "X-Device-Id": "device-primary",
-        "X-Request-Nonce": nonce,
-        "Idempotency-Key": idempotency_key,
-        "X-Experiment-Key": "local-experiment-key-32-characters-long",
-        "X-Test-Source-IP": ip,
-        "X-Test-Context-Time": context_time,
-        "X-Scenario-Label": label,
-        "User-Agent": user_agent,
-    }
-    response = requests.post(
-        f"{BASE_URL}{endpoint}",
-        headers=headers,
-        json=BODY if body is None else body,
-        timeout=5,
-    )
-    result = response.json()
-    print(f"\n{label}")
+def tampilkan(judul, response):
+    data = response.json()
+    print(f"\n{judul}")
     print("HTTP       :", response.status_code)
-    print("Keputusan  :", response.headers.get("X-RATF-Decision", result.get("decision")))
-    print("Trust score:", response.headers.get("X-RATF-Score", result.get("trust_score")))
-    print("Alasan     :", response.headers.get("X-RATF-Reason", result.get("reason_code")))
-    print("Policy     :", response.headers.get("X-RATF-Policy", result.get("policy_name")))
-    print("Respons    :", result)
-    return nonce, idempotency_key
+    print("Keputusan  :", response.headers.get("X-RATF-Decision", data.get("decision")))
+    print("Trust score:", response.headers.get("X-RATF-Score", data.get("trust_score")))
+    print("Alasan     :", response.headers.get("X-RATF-Reason", data.get("reason_code")))
+    print("Respons    :", data)
 
 
-if __name__ == "__main__":
-    requests.post(f"{BASE_URL}/app/login", timeout=5).raise_for_status()
-    send("Normal", "192.168.10.10", "MarketplaceApp/1.0", 10)
-    replay_nonce = f"nonce_{uuid.uuid4().hex}"
-    replay_idem = f"idem_{uuid.uuid4().hex}"
-    send("Request pertama", "192.168.10.10", "MarketplaceApp/1.0", 10, replay_nonce, replay_idem)
-    send("Exact replay", "192.168.10.10", "MarketplaceApp/1.0", 10, replay_nonce, replay_idem)
-    time.sleep(0.05)
-    send("Konteks berbeda", "103.10.20.30", "PythonBot/3.0", 23)
-    send(
-        "API pembayaran penting",
-        "192.168.10.10",
-        "MarketplaceApp/1.0",
-        10,
-        endpoint="/api/payments",
-        body={"amount": 250000},
-    )
+normal_headers = {
+    "Authorization": "Bearer app-token-alice",
+    "X-Client-Id": "marketplace-app",
+    "X-Device-Id": "device-primary",
+    "X-Request-Nonce": f"nonce_{uuid.uuid4().hex}",
+    "Idempotency-Key": f"idem_{uuid.uuid4().hex}",
+    "X-Experiment-Key": "local-experiment-key-32-characters-long",
+    "X-Test-Source-IP": "192.168.10.10",
+    "X-Test-Context-Time": datetime.now(timezone.utc).replace(hour=10).isoformat(),
+    "User-Agent": "MarketplaceApp/1.0",
+}
+
+normal = requests.post(f"{BASE_URL}/api/orders", headers=normal_headers, json=BODY, timeout=5)
+tampilkan("1. Request normal", normal)
+
+changed_headers = normal_headers.copy()
+changed_headers.update(
+    {
+        "X-Request-Nonce": f"nonce_{uuid.uuid4().hex}",
+        "Idempotency-Key": f"idem_{uuid.uuid4().hex}",
+        "X-Test-Source-IP": "103.10.20.30",
+        "User-Agent": "AutomationClient/1.0",
+    }
+)
+changed = requests.post(f"{BASE_URL}/api/orders", headers=changed_headers, json=BODY, timeout=5)
+tampilkan("2. Token sama, tetapi IP dan aplikasi client berubah", changed)
+
+replay = requests.post(f"{BASE_URL}/api/orders", headers=normal_headers, json=BODY, timeout=5)
+tampilkan("3. Request normal dikirim ulang tanpa mengganti nonce", replay)
+
+debug = requests.get(
+    f"{BASE_URL}/app/debug/ratf",
+    headers={"X-Debug-Key": "local-debug-key"},
+    timeout=5,
+).json()
+print("\n4. State yang dapat dipakai pengembang untuk debug")
+print("Storage              :", debug["storage_backend"])
+print("Request allow tersimpan:", debug["context_history"].get("allowed_request_count", 0))
+print("Context history      :", debug["context_history"])
+print("Event terbaru        :", len(debug["recent_events"]))
+print("Audit valid          :", debug["audit_integrity"]["valid"])

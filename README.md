@@ -1,4 +1,4 @@
-# R-ATF Framework 0.1.1
+# R-ATF Framework 0.1.2
 
 R-ATF adalah framework keamanan adaptif berbasis aturan untuk mengevaluasi
 setiap request API setelah autentikasi dasar berhasil. Framework menghitung
@@ -56,30 +56,74 @@ Dokumentasi integrasi lengkap terdapat di
 ## Distribusi internet
 
 Source code sudah memiliki metadata paket, CI, workflow rilis, lisensi, security
-policy, dan artefak wheel. Setelah repository serta project PyPI dibuat oleh
-pemilik, pengembang dapat memasangnya melalui:
+policy, artefak wheel, serta aplikasi showcase yang ikut masuk ke paket. Setelah
+project PyPI diaktifkan oleh pemilik, komputer lain cukup menjalankan:
 
 ```bash
-pip install "ratf-framework[flask]"
+pip install ratf-framework
 ```
+
+Pengguna yang sudah memasang versi sebelumnya dapat memperbarui package tanpa
+memindahkan folder proyek:
+
+```bash
+pip install --upgrade --no-cache-dir ratf-framework==0.1.2
+```
+
+Flask dan Waitress sudah menjadi dependency paket. Pengembang tidak perlu
+mengunduh atau memindahkan folder repository untuk menjalankan showcase.
 
 Perintah tersebut belum akan mengambil versi ini dari internet sebelum paket
 benar-benar dipublikasikan. Panduan pemilik paket berada di
 `docs/PUBLIC_DISTRIBUTION.md`.
 
+### Menjalankan showcase dari paket terpasang
+
+Pada PyCharm, buat **Python Run Configuration**, pilih **Module name**, lalu isi:
+
+```text
+ratf.showcase
+```
+
+Klik **Run**. Browser akan terbuka pada `http://127.0.0.1:5100/`. Cara yang sama
+dapat dipakai melalui konfigurasi module pada VS Code. Alternatif terminalnya:
+
+```bash
+ratf-showcase
+```
+
+Halaman utama adalah aplikasi dagang fiktif **NusaMart**, bukan halaman admin
+framework. Penguji dapat melakukan checkout normal, memindahkan token ke konteks
+lain, mengirim exact replay, serta mencoba konteks berisiko tinggi. Halaman
+menampilkan request client, response server, header `X-RATF-*`, komponen trust
+score, step-up challenge, histori konteks, audit integrity, dan lokasi package
+yang dimuat oleh Python. Dashboard lama tetap tersedia pada
+`http://127.0.0.1:5100/ratf/dashboard/` untuk mengubah bobot dan threshold.
+
+## Mencoba contoh yang tersedia
+
+Struktur contoh lama tetap digunakan. Untuk Python, Run
+`examples/flask_app/app.py`, kemudian Run `examples/flask_app/run_client.py`.
+Hasilnya memperlihatkan request normal, perubahan konteks, exact replay, dan
+snapshot debug histori konteks.
+
+Untuk Node.js, biarkan contoh Flask aktif sebagai evaluation service, lalu
+jalankan `examples/nodejs/server.mjs` dan `run_client.mjs`. Contoh Node.js tidak
+memiliki dependency npm tambahan.
+
 Nama `v6` pada skrip lama adalah nomor iterasi paket eksperimen, sedangkan
 `0.1.0` adalah versi semantik pertama untuk produk library. Perubahan nomor ini
 bukan penurunan fitur dan tidak mengubah data eksperimen v6.
 
-## Dashboard demonstrasi melalui PyCharm
+## Demonstrasi melalui PyCharm
 
 Cara paling mudah untuk demonstrasi:
 
 1. buka proyek ini di PyCharm;
 2. pasang dependency dengan `pip install -e ".[demo]"`;
 3. Run `run_dashboard.py`;
-4. buka `http://127.0.0.1:5100/ratf/dashboard/`;
-5. pilih skenario, ubah bobot atau threshold, lalu klik **Evaluasi request**.
+4. gunakan aplikasi NusaMart pada `http://127.0.0.1:5100/`;
+5. buka **R-ATF Control Room** untuk mengubah bobot atau threshold.
 
 Bagian bawah dashboard membaca ringkasan hasil penelitian asli dari
 `results/research_final`: 31.220 baris keamanan, 40 measured run k6, perubahan
@@ -89,8 +133,11 @@ ditampilkan terpisah dari hasil request interaktif.
 Jika penguji hanya ingin membaca angka hasil melalui console, Run
 `check_research_results.py` dari PyCharm.
 
-Dashboard contoh memakai memory storage agar dapat langsung dijalankan. Untuk
-menjalankan contoh yang sama dengan Redis:
+Showcase memakai memory storage agar dapat langsung dijalankan dengan satu
+perintah. Ini sengaja diberi label demonstrasi satu proses. Untuk memakai Redis,
+set `RATF_SHOWCASE_STORAGE=redis` dan `RATF_SHOWCASE_REDIS_URL` ke database Redis
+khusus/disposable karena tombol reset membersihkan state showcase. Alternatifnya,
+jalankan contoh Docker yang sudah ada:
 
 ```powershell
 docker compose --profile demo up --build -d framework-demo

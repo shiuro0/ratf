@@ -1,8 +1,14 @@
-"""PyCharm entry point for the R-ATF dashboard and Flask example."""
+"""PyCharm entry point for the installed-package showcase."""
 
-from examples.flask_app.app import create_app
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+if str(ROOT / "src") not in sys.path:
+    sys.path.insert(0, str(ROOT / "src"))
+
+from ratf.showcase import run
 
 
 if __name__ == "__main__":
-    print("Buka http://127.0.0.1:5100/ratf/dashboard/")
-    create_app().run(host="127.0.0.1", port=5100, debug=False)
+    run()

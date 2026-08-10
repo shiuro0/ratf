@@ -1,5 +1,6 @@
-import http from "node:http";
 import crypto from "node:crypto";
+import http from "node:http";
+
 
 const port = Number(process.env.PORT || 5200);
 const evaluationUrl = process.env.RATF_EVALUATION_URL || "http://127.0.0.1:5100/access/v1/evaluation";
@@ -7,8 +8,8 @@ const evaluationKey = process.env.RATF_EVALUATION_KEY || "local-authzen-service-
 const applicationToken = process.env.NODE_EXAMPLE_TOKEN || "node-app-token";
 const policyId = process.env.RATF_POLICY_ID || "important-api";
 
-async function evaluate(req) {
-  const requestId = req.headers["x-request-id"] || crypto.randomUUID();
+
+async function mintaKeputusan(req) {
   const payload = {
     subject: {
       type: "user",
@@ -30,44 +31,61 @@ async function evaluate(req) {
       client_id: "marketplace-node",
       device_id: req.headers["x-device-id"] || "device-primary",
       hour_utc: Number(req.headers["x-hour-utc"] || 10),
-      policy_id: policyId,
-      scenario_label: req.headers["x-scenario-label"] || "node-request"
+      policy_id: policyId
     }
   };
+
   const response = await fetch(evaluationUrl, {
     method: "POST",
-    headers: {"Authorization": `Bearer ${evaluationKey}`, "Content-Type": "application/json", "X-Request-ID": requestId},
+    headers: {
+      "Authorization": `Bearer ${evaluationKey}`,
+      "Content-Type": "application/json",
+      "X-Request-ID": crypto.randomUUID()
+    },
     body: JSON.stringify(payload)
   });
-  if (!response.ok) throw new Error(`Evaluation service returned HTTP ${response.status}`);
+
+  if (!response.ok) {
+    throw new Error(`Evaluation service mengembalikan HTTP ${response.status}`);
+  }
   return response.json();
 }
+
 
 const server = http.createServer(async (req, res) => {
   if (req.method !== "POST" || req.url !== "/orders") {
     res.writeHead(404, {"Content-Type": "application/json"});
-    return res.end(JSON.stringify({error: "not_found"}));
+    return res.end(JSON.stringify({message: "Endpoint tidak ditemukan"}));
   }
+
   if (req.headers.authorization !== `Bearer ${applicationToken}`) {
     res.writeHead(401, {"Content-Type": "application/json"});
-    return res.end(JSON.stringify({error: "application_token_invalid"}));
+    return res.end(JSON.stringify({message: "Token aplikasi tidak valid"}));
   }
+
   try {
-    const evaluation = await evaluate(req);
+    const evaluation = await mintaKeputusan(req);
     const ratf = evaluation.context.ratf;
+
     if (!evaluation.decision) {
       const status = ratf.decision === "verify" ? 401 : 403;
       res.writeHead(status, {"Content-Type": "application/json", "X-RATF-Decision": ratf.decision});
-      return res.end(JSON.stringify({status: "not_forwarded", ...ratf}));
+      return res.end(JSON.stringify({message: "Request tidak diteruskan", ratf}));
     }
+
     res.writeHead(201, {"Content-Type": "application/json", "X-RATF-Decision": ratf.decision});
-    return res.end(JSON.stringify({order_id: `node_${crypto.randomUUID().slice(0, 8)}`, status: "created", ratf}));
+    return res.end(JSON.stringify({
+      message: "Pesanan berhasil dibuat",
+      order_id: `node_${crypto.randomUUID().slice(0, 8)}`,
+      ratf
+    }));
   } catch (error) {
     res.writeHead(503, {"Content-Type": "application/json"});
-    return res.end(JSON.stringify({error: "evaluation_service_unavailable", message: error.message}));
+    return res.end(JSON.stringify({message: "Layanan R-ATF tidak tersedia", detail: error.message}));
   }
 });
 
+
 server.listen(port, "127.0.0.1", () => {
-  console.log(`Node.js example: http://127.0.0.1:${port}/orders`);
+  console.log(`Aplikasi Node.js: http://127.0.0.1:${port}/orders`);
 });

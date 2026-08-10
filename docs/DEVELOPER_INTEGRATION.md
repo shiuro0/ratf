@@ -9,13 +9,18 @@ Dashboard tidak diperlukan pada aplikasi yang memakai framework.
 Setelah paket dipublikasikan ke PyPI:
 
 ```bash
-pip install "ratf-framework[flask]==0.1.1"
+pip install ratf-framework
 ```
+
+Perintah tersebut sudah memasang adapter Flask dan WSGI server Waitress. Untuk
+memeriksa hasil instalasi tanpa mengambil repository, jalankan module
+`ratf.showcase` melalui Run Configuration PyCharm/VS Code. Halaman NusaMart
+akan terbuka dan Control Room tersedia pada `/ratf/dashboard/`.
 
 Sebelum publikasi, pengembang dapat memasang wheel atau repository:
 
 ```bash
-pip install "ratf-framework[flask] @ git+https://github.com/OWNER/REPOSITORY.git@v0.1.1"
+pip install "ratf-framework[flask] @ git+https://github.com/OWNER/REPOSITORY.git@v0.1.2"
 ```
 
 Ganti `OWNER/REPOSITORY` setelah repository publik dibuat.
@@ -108,6 +113,24 @@ Response memuat `X-RATF-Policy`, `X-RATF-Decision`,
 `X-RATF-Effective-Decision`, `X-RATF-Reason`, dan `X-RATF-Score` agar keputusan
 dapat diamati tanpa membuka access token.
 
+## Debug dan histori konteks
+
+Pengembang dapat membaca state yang memang dimiliki aplikasinya tanpa membuka
+token mentah:
+
+```python
+snapshot = ratf.debug_snapshot("family-customer-001", limit=10)
+print(snapshot["storage_backend"])
+print(snapshot["context_history"])
+print(snapshot["recent_events"])
+```
+
+Jika backend menggunakan Redis, `context_profile` dan `context_history` dibaca
+dari Redis. `recent_events` adalah event proses aplikasi, sedangkan keputusan
+audit permanen tetap berada pada log JSONL berantai hash. Jangan menyediakan
+snapshot ini melalui endpoint publik; bila diperlukan untuk pengembangan,
+lindungi dengan autentikasi dan matikan di lingkungan produksi.
+
 ## Konfigurasi melalui aplikasi
 
 Policy juga dapat diletakkan pada konfigurasi Flask sehingga tidak tersebar di
@@ -171,3 +194,15 @@ Kontrak lengkap tersedia pada `src/ratf/openapi/ratf-evaluation.openapi.yaml`.
 - observability, backup, failover, serta security review sebelum produksi.
 
 Memory storage dan dashboard lokal hanya digunakan untuk pengembangan.
+Pengembang cukup melakukan smoke test integrasi aplikasinya. Skenario keamanan
+S1–S15 dan eksperimen k6 merupakan validasi framework oleh maintainer dan tidak
+harus dijalankan ulang oleh setiap pengguna paket.
+
+## Arti kesiapan showcase
+
+Berhasil memasang package, menjalankan Waitress, dan memperoleh keputusan
+`allow`, `verify`, serta `block` membuktikan bahwa distribusi dan API integrasi
+bekerja. Bukti itu belum sama dengan kesiapan produksi skala besar. Panel
+**Backend & kesiapan** pada showcase menilai keadaan aktual dan tetap memberi
+status belum production-ready selama masih memakai token demo, memory storage,
+HTTP lokal, tanpa Redis failover, metrics, tracing, dan pengujian multi-node.

@@ -1,20 +1,16 @@
 # Contoh integrasi Node.js
 
-Contoh ini tidak mengimpor modul Python. `server.mjs` bertindak sebagai Policy
-Enforcement Point dan meminta keputusan ke layanan evaluasi R-ATF dengan format
-AuthZEN.
+Folder Node.js lama tetap digunakan. `server.mjs` menjadi Policy Enforcement
+Point dan meminta keputusan ke evaluation service R-ATF melalui HTTP.
 
-`server.mjs` mengirim `context.policy_id=important-api` secara bawaan. Nilainya
-dapat diganti melalui environment variable `RATF_POLICY_ID`, sehingga service
-Node.js dapat memilih policy endpoint tanpa menduplikasi formula R-ATF.
+1. Run `examples/flask_app/app.py` agar evaluation service aktif.
+2. Jalankan `server.mjs` dengan Node.js 18 atau lebih baru.
+3. Jalankan `run_client.mjs`.
 
-Token `node-app-token` hanya mewakili validasi Identity Provider milik aplikasi
-pada contoh lokal. Pada aplikasi nyata, validasi token harus dilakukan sebelum
-subject dan konteks dikirim ke evaluation service.
+Tidak ada dependency npm tambahan. Nilai body dan header dapat diubah langsung
+pada `run_client.mjs`. Aplikasi Node.js tidak menyalin formula trust score,
+sehingga bobot dan threshold tetap dikelola oleh R-ATF.
 
-1. Jalankan `examples/flask_app/app.py` agar layanan evaluasi aktif.
-2. Jalankan `server.mjs`.
-3. Jalankan `run_client.mjs` untuk melihat request normal dan perubahan konteks.
-
-Tidak ada package npm tambahan yang dibutuhkan karena contoh memakai `fetch` dan
-server HTTP bawaan Node.js.
+Contoh ini hanya smoke test integrasi. Pengembang yang memakai paket tidak perlu
+mengulang S1–S15 atau eksperimen k6. Pada aplikasi nyata, Identity Provider
+harus memvalidasi token sebelum identitas dan konteks dikirim ke R-ATF.
