@@ -1,0 +1,125 @@
+openapi: 3.1.0
+info:
+  title: R-ATF Authorization Evaluation Service
+  version: 0.1.1
+  description: >-
+    Authorization evaluation endpoint compatible with the OpenID AuthZEN
+    Authorization API 1.0 entity model. R-ATF's allow, verify, and block result
+    is carried in response.context.ratf while decision remains boolean.
+servers:
+  - url: http://127.0.0.1:5100
+paths:
+  /access/v1/evaluation:
+    post:
+      operationId: evaluateAccess
+      summary: Evaluate one access request
+      security:
+        - evaluationServiceKey: []
+      parameters:
+        - name: X-Request-ID
+          in: header
+          required: false
+          schema: {type: string}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EvaluationRequest'}
+      responses:
+        '200':
+          description: Evaluation completed; decision may be true or false
+          headers:
+            X-Request-ID:
+              schema: {type: string}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EvaluationResponse'}
+        '400':
+          description: Invalid evaluation request
+        '401':
+          description: Evaluation client was not authenticated
+components:
+  securitySchemes:
+    evaluationServiceKey:
+      type: http
+      scheme: bearer
+  schemas:
+    Entity:
+      type: object
+      required: [type, id]
+      properties:
+        type: {type: string}
+        id: {type: string}
+        properties:
+          type: object
+          additionalProperties: true
+    Action:
+      type: object
+      anyOf:
+        - required: [name]
+        - required: [id]
+      properties:
+        name: {type: string}
+        id: {type: string}
+        properties:
+          type: object
+          additionalProperties: true
+    EvaluationRequest:
+      type: object
+      required: [subject, resource, action]
+      properties:
+        subject: {$ref: '#/components/schemas/Entity'}
+        resource: {$ref: '#/components/schemas/Entity'}
+        action: {$ref: '#/components/schemas/Action'}
+        context:
+          type: object
+          description: >-
+            Request context. policy_id may select a named policy profile that
+            was registered by the R-ATF host application.
+          properties:
+            policy_id:
+              type: string
+              description: Named R-ATF policy profile, for example important-api.
+          additionalProperties: true
+    EvaluationResponse:
+      type: object
+      required: [decision]
+      properties:
+        decision:
+          type: boolean
+          description: Effective allow or deny result used by the policy enforcement point.
+        context:
+          type: object
+          properties:
+            ratf:
+              $ref: '#/components/schemas/RATFDecisionContext'
+    RATFDecisionContext:
+      type: object
+      required: [decision, effective_decision, reason_code, shadow_mode]
+      properties:
+        decision:
+          type: string
+          enum: [allow, verify, block]
+        effective_decision:
+          type: string
+          enum: [allow, verify, block]
+        reason_code: {type: string}
+        reason_codes:
+          type: array
+          items: {type: string}
+        trust_score:
+          type: [number, 'null']
+          minimum: 0
+          maximum: 1
+        score_components:
+          type: object
+          additionalProperties: {type: number}
+        request_count:
+          type: [integer, 'null']
+        shadow_mode: {type: boolean}
+        policy_name:
+          type: string
+          description: Policy profile used by the evaluation.
+        step_up:
+          type: [object, 'null']
+          additionalProperties: true

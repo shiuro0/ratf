@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=77.0.3", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ratf-framework"
+dynamic = ["version"]
+description = "Reusable rule-based adaptive trust framework for API access decisions"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{name = "Zahrul Fuadi"}]
+keywords = ["api-security", "adaptive-trust", "flask", "authzen", "zero-trust"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Framework :: Flask",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Internet :: WWW/HTTP :: WSGI :: Middleware",
+  "Topic :: Security",
+]
+dependencies = [
+  "PyJWT>=2.9,<3",
+  "redis>=5,<7",
+  "python-dotenv>=1,<2",
+]
+
+[project.optional-dependencies]
+flask = ["Flask>=3,<4"]
+demo = ["Flask>=3,<4", "requests>=2.32,<3"]
+test = ["pytest>=8,<10", "requests>=2.32,<3"]
+research = ["pandas>=2.2,<3", "matplotlib>=3.9,<4", "psutil>=6,<8"]
+documents = ["python-docx>=1.2,<2", "python-pptx>=1,<2"]
+release = ["build>=1.2,<2", "twine>=6,<7"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {attr = "ratf.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+ratf = ["py.typed", "templates/ratf/*.html", "openapi/*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "validation_tests"]
+pythonpath = ["src"]
