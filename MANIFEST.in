@@ -1,7 +1,7 @@
-include README.md LICENSE CHANGELOG.md SECURITY.md CONTRIBUTING.md RELEASE_NOTES_v0.1.2.md
+include README.md LICENSE CHANGELOG.md SECURITY.md CONTRIBUTING.md RELEASE_NOTES_v0.1.2.md RELEASE_NOTES_v0.1.3.md
 include run_all_checks.py
 include src/app.py
-recursive-include src/ratf *.py *.typed *.html *.yaml
+recursive-include src/ratf *.py *.typed *.html *.yaml *.json
 recursive-include examples *.py *.md *.mjs *.json
 recursive-include docs *.md *.mmd
 recursive-include validation_tests *.py

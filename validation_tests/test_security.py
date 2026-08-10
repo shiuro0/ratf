@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import tempfile
 import unittest
 import uuid
+from pathlib import Path
 
 from examples.flask_app.app import create_app
 from validation_tests.common import authzen_payload, request_headers
@@ -9,11 +11,17 @@ from validation_tests.common import authzen_payload, request_headers
 
 class SecurityTests(unittest.TestCase):
     def setUp(self):
-        self.app = create_app()
+        self.temp = tempfile.TemporaryDirectory()
+        self.app = create_app(
+            audit_path=str(Path(self.temp.name) / "security-audit.jsonl")
+        )
         self.app.testing = True
         self.client = self.app.test_client()
         self.extension = self.app.extensions["ratf"]
         self.extension.engine.reset()
+
+    def tearDown(self):
+        self.temp.cleanup()
 
     def test_missing_and_invalid_tokens_are_blocked(self):
         missing = self.client.post("/api/orders", json={})

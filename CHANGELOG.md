@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.1.3 UHAMKA Mart and examiner-friendly Control Room
+
+- Mengganti aplikasi contoh NusaMart menjadi UHAMKA Mart dan memisahkan
+  pengalaman belanja dari penjelasan teknis framework.
+- Menambahkan pencarian, kategori, favorit, keranjang multi-produk, pilihan
+  pengiriman, kode promo, dan hasil checkout pada aplikasi contoh.
+- Memusatkan skenario normal, perpindahan token, exact replay, konteks risiko,
+  riwayat, audit, kesiapan, dan hasil penelitian di Control Room.
+- Menambahkan tombol untuk mengembalikan bobot dan ambang keputusan yang
+  digunakan dalam penelitian serta dukungan mengubah policy endpoint aktif.
+- Menampilkan token demonstrasi secara lengkap hanya pada Control Room lokal
+  dan request DevTools, disertai peringatan agar tidak digunakan pada produksi.
+- Menyertakan ringkasan hasil eksperimen final dalam paket tanpa menghitung
+  ulang atau mengubah data pengujian keamanan dan kinerja lama.
+
 ## v0.1.2 packaged showcase and control room
 
 - Menambahkan showcase web NusaMart yang ikut terpasang dalam wheel dan dapat
@@ -10,6 +25,8 @@
   menjadikan Flask serta Waitress dependency instalasi standar.
 - Menambahkan pemeriksaan integrasi showcase dan instalasi wheel dari working
   directory di luar repository.
+- Menambahkan URL publik `shiuro0/ratf-framework` pada metadata paket untuk
+  homepage, repository, dokumentasi, issue tracker, dan changelog.
 - Mempertahankan core, eksperimen keamanan, data k6, dan public API v0.1.1 agar
   pembaruan antarmuka tidak mengubah hasil penelitian lama.
 

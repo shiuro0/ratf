@@ -17,6 +17,8 @@ nomor versi yang sama.
   audit integrity, dan penilaian kesiapan dapat diperiksa melalui GUI.
 - Flask dan Waitress menjadi dependency standar agar instalasi satu perintah
   langsung dapat menjalankan showcase.
+- Metadata PyPI menampilkan tautan homepage, repository, dokumentasi, issue
+  tracker, dan changelog pada `shiuro0/ratf-framework`.
 
 ## Kompatibilitas
 

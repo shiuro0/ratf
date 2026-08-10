@@ -45,6 +45,8 @@ class RATF:
         app.config.setdefault("RATF_DASHBOARD_ENABLED", False)
         app.config.setdefault("RATF_DASHBOARD_UNSAFE_LOCAL", False)
         app.config.setdefault("RATF_DASHBOARD_KEY", "")
+        app.config.setdefault("RATF_DASHBOARD_DEFAULT_POLICY", "")
+        app.config.setdefault("RATF_DASHBOARD_DEMO_CONTEXT", None)
         app.config.setdefault("RATF_RESEARCH_RESULTS_DIR", "")
         app.config.setdefault("RATF_AUTHZEN_ENABLED", False)
         app.config.setdefault("RATF_AUTHZEN_API_KEY", "")
@@ -308,6 +310,42 @@ class RATF:
             raise RuntimeError("RATF.init_app() belum dipanggil")
         self.engine.config.update_policy(**values)
         return self.engine.config.to_dict()
+
+    def update_policy_profile(self, name: str, **values: Any) -> dict[str, Any]:
+        """Update a named policy without editing the protected endpoint.
+
+        Dashboard integrations can use this method during development. The
+        decorator should refer to the policy by name so each request resolves
+        the latest profile.
+        """
+
+        if not self.engine:
+            raise RuntimeError("RATF.init_app() belum dipanggil")
+        current = self.resolve_policy(name)
+        if current is None:
+            raise ValueError(f"Policy {name!r} belum terdaftar")
+
+        updated = PolicyProfile(
+            name=current.name,
+            weights=dict(values.get("weights", current.weights)),
+            verify_threshold=values.get(
+                "verify_threshold", current.verify_threshold
+            ),
+            allow_threshold=values.get("allow_threshold", current.allow_threshold),
+            shadow_mode=values.get("shadow_mode", current.shadow_mode),
+            burst_soft_limit=values.get(
+                "burst_soft_limit", current.burst_soft_limit
+            ),
+            burst_hard_limit=values.get(
+                "burst_hard_limit", current.burst_hard_limit
+            ),
+            hard_burst_block=values.get(
+                "hard_burst_block", current.hard_burst_block
+            ),
+        )
+        updated.resolve(self.engine.config)
+        self.policies[current.name] = updated
+        return updated.to_dict(self.engine.config)
 
     @staticmethod
     def _decorate(response, result: EvaluationResult):

@@ -25,17 +25,19 @@ folder kerja asal.
 
 ## Pemeriksaan tambahan showcase (10 Agustus 2026)
 
-Suite integration sekarang berisi lima test dan seluruhnya lulus. Dua test baru
-memeriksa bahwa storefront serta Control Room termuat dari package, status
-kesiapan tidak salah mengklaim produksi, dan alur HTTP menghasilkan `allow`,
-`verify`, `block`, serta `nonce_reused` sesuai kondisi client.
+Suite integration sekarang berisi enam test dan seluruhnya lulus. Pemeriksaan
+memastikan UHAMKA Mart serta Control Room termuat dari package, status kesiapan
+tidak salah mengklaim produksi, policy endpoint dapat dikembalikan ke bobot dan
+ambang penelitian, token demonstrasi lokal tampil lengkap, serta alur HTTP
+menghasilkan `allow`, `verify`, `block`, dan `nonce_reused` sesuai kondisi client.
 
-Wheel final `ratf_framework-0.1.2-py3-none-any.whl` juga dipasang pada virtual environment kosong dengan working
-directory di luar repository. Storefront, Control Room, template terpaket, dan
-entry point `ratf-showcase = ratf.showcase:main` seluruhnya berhasil dimuat dari
-`site-packages`. S1–S15 dan eksperimen k6 tidak dijalankan ulang karena perubahan
-ini berada pada packaging, aplikasi showcase, dan tampilan; bukti eksperimen
-lama tetap dipertahankan.
+Wheel final `ratf_framework-0.1.3-py3-none-any.whl` dipasang pada virtual
+environment terpisah dengan working directory di luar repository. UHAMKA Mart,
+Control Room, ringkasan hasil penelitian, token demonstrasi, template terpaket,
+dan entry point `ratf-showcase = ratf.showcase:main` berhasil dimuat dari
+`site-packages`. Seluruh 15 validation test lulus. S1–S15 dan eksperimen k6 tidak
+dijalankan ulang karena perubahan ini berada pada packaging, aplikasi showcase,
+dan tampilan; bukti eksperimen lama tetap dipertahankan.
 
 Microbenchmark pengembangan menjalankan 5.000 evaluasi core pada memory storage.
 Nilai hasil eksekusi tersimpan pada

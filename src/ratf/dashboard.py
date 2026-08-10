@@ -4,6 +4,7 @@ import hashlib
 import json
 import uuid
 from datetime import datetime, timezone
+from importlib.resources import files as resource_files
 from pathlib import Path
 from typing import Any
 
@@ -18,7 +19,7 @@ def _extension():
 
 def _write_allowed() -> bool:
     if current_app.config.get("RATF_DASHBOARD_UNSAFE_LOCAL"):
-        return True
+        return (request.remote_addr or "") in {"127.0.0.1", "::1", "localhost"}
     expected = str(current_app.config.get("RATF_DASHBOARD_KEY", ""))
     return bool(expected and request.headers.get("X-Dashboard-Key") == expected)
 
@@ -67,7 +68,26 @@ def create_dashboard_blueprint() -> Blueprint:
     @blueprint.get("/api/config")
     def policy_config():
         extension = _extension()
-        return jsonify(extension.engine.config.to_dict())
+        policy_id = str(request.args.get("policy_id", "")).strip()
+        if not policy_id:
+            return jsonify(
+                {
+                    "scope": "default",
+                    "policy_name": "default",
+                    **extension.engine.config.to_dict(),
+                }
+            )
+        try:
+            profile = extension.resolve_policy(policy_id)
+        except ValueError as exc:
+            return jsonify({"error": "unknown_policy", "message": str(exc)}), 404
+        return jsonify(
+            {
+                "scope": "profile",
+                "policy_name": policy_id,
+                **profile.resolve(extension.engine.config).to_dict(),
+            }
+        )
 
     @blueprint.get("/api/policies")
     def policies():
@@ -79,6 +99,9 @@ def create_dashboard_blueprint() -> Blueprint:
                     name: profile.to_dict(extension.engine.config)
                     for name, profile in sorted(extension.policies.items())
                 },
+                "recommended": str(
+                    current_app.config.get("RATF_DASHBOARD_DEFAULT_POLICY", "")
+                ),
             }
         )
 
@@ -88,15 +111,47 @@ def create_dashboard_blueprint() -> Blueprint:
             return jsonify({"error": "dashboard_write_authorization_required"}), 401
         values = request.get_json(silent=True) or {}
         try:
-            config = _extension().update_policy(
-                weights=values.get("weights"),
-                allow_threshold=values.get("allow_threshold"),
-                verify_threshold=values.get("verify_threshold"),
-                shadow_mode=values.get("shadow_mode"),
-            )
+            extension = _extension()
+            policy_id = str(values.get("policy_id", "")).strip()
+            updates = {
+                "weights": values.get("weights"),
+                "allow_threshold": values.get("allow_threshold"),
+                "verify_threshold": values.get("verify_threshold"),
+                "shadow_mode": values.get("shadow_mode"),
+            }
+            if policy_id:
+                profile = extension.update_policy_profile(policy_id, **updates)
+                config = {
+                    "scope": "profile",
+                    "policy_name": policy_id,
+                    **profile["resolved"],
+                }
+            else:
+                config = {
+                    "scope": "default",
+                    "policy_name": "default",
+                    **extension.update_policy(**updates),
+                }
         except (TypeError, ValueError) as exc:
             return jsonify({"error": "invalid_policy", "message": str(exc)}), 400
         return jsonify(config)
+
+    @blueprint.get("/api/demo-context")
+    def demo_context():
+        """Expose explicit local-demo credentials to the demonstration UI.
+
+        Raw tokens are intentionally returned only when the application owner
+        supplies demo context and dashboard access is authorized.
+        """
+
+        if not _write_allowed():
+            return jsonify({"error": "dashboard_read_authorization_required"}), 401
+        values = current_app.config.get("RATF_DASHBOARD_DEMO_CONTEXT")
+        if not isinstance(values, dict):
+            return jsonify({"available": False})
+        response = jsonify({"available": True, **values})
+        response.headers["Cache-Control"] = "no-store"
+        return response
 
     @blueprint.post("/api/evaluate")
     def evaluate():
@@ -156,7 +211,11 @@ def create_dashboard_blueprint() -> Blueprint:
             {
                 "baseline": baseline.to_dict(),
                 "result": result.to_dict(),
-                "policy": engine.config.to_dict(),
+                "policy": (
+                    selected_policy.resolve(engine.config).to_dict()
+                    if selected_policy is not None
+                    else engine.config.to_dict()
+                ),
                 "explanation": (
                     "Request tetap diteruskan karena shadow mode aktif."
                     if result.shadow_mode
@@ -173,13 +232,19 @@ def create_dashboard_blueprint() -> Blueprint:
     def research_summary():
         configured = str(current_app.config.get("RATF_RESEARCH_RESULTS_DIR", "")).strip()
         if not configured:
-            return jsonify({"available": False})
+            packaged = resource_files("ratf").joinpath("data/research_summary.json")
+            if not packaged.is_file():
+                return jsonify({"available": False})
+            return jsonify(json.loads(packaged.read_text(encoding="utf-8")))
         root = Path(configured)
         security_path = root / "security" / "system_comparison.json"
         validation_path = root / "security" / "final_validation_report.json"
         performance_path = root / "performance" / "performance_comparison.json"
         if not all(path.is_file() for path in (security_path, validation_path, performance_path)):
-            return jsonify({"available": False, "reason": "research_result_files_incomplete"})
+            packaged = resource_files("ratf").joinpath("data/research_summary.json")
+            if not packaged.is_file():
+                return jsonify({"available": False, "reason": "research_result_files_incomplete"})
+            return jsonify(json.loads(packaged.read_text(encoding="utf-8")))
         security = json.loads(security_path.read_text(encoding="utf-8"))
         validation = json.loads(validation_path.read_text(encoding="utf-8"))
         performance = json.loads(performance_path.read_text(encoding="utf-8"))

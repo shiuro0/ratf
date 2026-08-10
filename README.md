@@ -1,4 +1,4 @@
-# R-ATF Framework 0.1.2
+# R-ATF Framework 0.1.3
 
 R-ATF adalah framework keamanan adaptif berbasis aturan untuk mengevaluasi
 setiap request API setelah autentikasi dasar berhasil. Framework menghitung
@@ -67,7 +67,7 @@ Pengguna yang sudah memasang versi sebelumnya dapat memperbarui package tanpa
 memindahkan folder proyek:
 
 ```bash
-pip install --upgrade --no-cache-dir ratf-framework==0.1.2
+pip install --upgrade --no-cache-dir ratf-framework==0.1.3
 ```
 
 Flask dan Waitress sudah menjadi dependency paket. Pengembang tidak perlu
@@ -92,13 +92,18 @@ dapat dipakai melalui konfigurasi module pada VS Code. Alternatif terminalnya:
 ratf-showcase
 ```
 
-Halaman utama adalah aplikasi dagang fiktif **NusaMart**, bukan halaman admin
-framework. Penguji dapat melakukan checkout normal, memindahkan token ke konteks
-lain, mengirim exact replay, serta mencoba konteks berisiko tinggi. Halaman
-menampilkan request client, response server, header `X-RATF-*`, komponen trust
-score, step-up challenge, histori konteks, audit integrity, dan lokasi package
-yang dimuat oleh Python. Dashboard lama tetap tersedia pada
-`http://127.0.0.1:5100/ratf/dashboard/` untuk mengubah bobot dan threshold.
+Halaman utama adalah aplikasi dagang fiktif **UHAMKA Mart**, bukan halaman admin
+framework. Halaman tersebut sengaja hanya menampilkan pengalaman belanja agar
+terlihat seperti aplikasi milik pengembang. Request checkout dapat diperiksa
+melalui **Chrome DevTools → Network**, termasuk token demonstrasi yang dikirim
+lengkap pada header `Authorization`.
+
+Seluruh penjelasan R-ATF dipusatkan pada **Control Room** di
+`http://127.0.0.1:5100/ratf/dashboard/`. Penguji dapat mencoba penggunaan normal,
+perpindahan token ke perangkat lain, exact replay, dan konteks berisiko tinggi;
+mengubah bobot serta batas keputusan; mengembalikan nilai penelitian; lalu
+melihat keputusan, komponen skor, riwayat konteks, audit, dan ringkasan hasil
+penelitian.
 
 ## Mencoba contoh yang tersedia
 
@@ -122,29 +127,21 @@ Cara paling mudah untuk demonstrasi:
 1. buka proyek ini di PyCharm;
 2. pasang dependency dengan `pip install -e ".[demo]"`;
 3. Run `run_dashboard.py`;
-4. gunakan aplikasi NusaMart pada `http://127.0.0.1:5100/`;
+4. gunakan aplikasi UHAMKA Mart pada `http://127.0.0.1:5100/`;
 5. buka **R-ATF Control Room** untuk mengubah bobot atau threshold.
 
-Bagian bawah dashboard membaca ringkasan hasil penelitian asli dari
-`results/research_final`: 31.220 baris keamanan, 40 measured run k6, perubahan
-3.000 request kontekstual, 4.000 request sah, serta overhead utama. Nilai itu
-ditampilkan terpisah dari hasil request interaktif.
+Bagian **Hasil penelitian** membaca ringkasan data pengujian akhir yang disimpan
+di dalam paket: 31.220 baris keamanan, 40 measured run k6, perubahan 3.000
+request kontekstual, 4.000 request sah, serta overhead utama. Nilai tersimpan
+tersebut ditampilkan terpisah dari hasil request interaktif di Control Room.
 
-Jika penguji hanya ingin membaca angka hasil melalui console, Run
-`check_research_results.py` dari PyCharm.
+Urutan presentasi singkat tersedia pada
+`docs/PANDUAN_DEMONSTRASI_PENGUJI.md`.
 
 Showcase memakai memory storage agar dapat langsung dijalankan dengan satu
 perintah. Ini sengaja diberi label demonstrasi satu proses. Untuk memakai Redis,
 set `RATF_SHOWCASE_STORAGE=redis` dan `RATF_SHOWCASE_REDIS_URL` ke database Redis
-khusus/disposable karena tombol reset membersihkan state showcase. Alternatifnya,
-jalankan contoh Docker yang sudah ada:
-
-```powershell
-docker compose --profile demo up --build -d framework-demo
-```
-
-Dashboard kemudian tersedia pada port 5100. Layanan penelitian lama tetap pada
-port 5000 dan 5001, sehingga hasil Standard API vs R-ATF tidak berubah.
+khusus karena tombol reset membersihkan state showcase.
 
 ## Memasang sebagai Flask extension
 

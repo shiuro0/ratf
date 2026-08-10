@@ -4,6 +4,7 @@ import json
 import os
 import shutil
 import subprocess
+import tempfile
 import threading
 import time
 import unittest
@@ -19,10 +20,16 @@ from validation_tests.common import authzen_payload
 
 class InteroperabilityTests(unittest.TestCase):
     def setUp(self):
-        self.app = create_app()
+        self.temp = tempfile.TemporaryDirectory()
+        self.app = create_app(
+            audit_path=str(Path(self.temp.name) / "interoperability-audit.jsonl")
+        )
         self.app.testing = True
         self.client = self.app.test_client()
         self.app.extensions["ratf"].engine.reset()
+
+    def tearDown(self):
+        self.temp.cleanup()
 
     def test_authzen_contract_and_request_id(self):
         denied = self.client.post("/access/v1/evaluation", json=authzen_payload())

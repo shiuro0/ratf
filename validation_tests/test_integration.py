@@ -7,16 +7,27 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from examples.flask_app.app import create_app
-from ratf.showcase import DEMO_EXPERIMENT_KEY, DEMO_TOKEN, create_showcase_app
+from ratf.showcase import (
+    DEMO_EXPERIMENT_KEY,
+    DEMO_POLICY_NAME,
+    DEMO_TOKEN,
+    create_showcase_app,
+)
 from validation_tests.common import request_headers
 
 
 class FlaskExtensionIntegrationTests(unittest.TestCase):
     def setUp(self):
-        self.app = create_app()
+        self.temp = tempfile.TemporaryDirectory()
+        self.app = create_app(
+            audit_path=str(Path(self.temp.name) / "integration-audit.jsonl")
+        )
         self.app.testing = True
         self.client = self.app.test_client()
         self.app.extensions["ratf"].engine.reset()
+
+    def tearDown(self):
+        self.temp.cleanup()
 
     def test_allow_replay_and_step_up_flow(self):
         normal = self.client.post("/api/orders", json={"item": "Phone"}, headers=request_headers())
@@ -139,7 +150,7 @@ class InstalledShowcaseIntegrationTests(unittest.TestCase):
         )
         return {
             "Authorization": f"Bearer {DEMO_TOKEN}",
-            "X-Client-Id": "nusamart-web",
+            "X-Client-Id": "uhamka-mart-web",
             "X-Device-Id": device,
             "X-Request-Timestamp": str(int(context_time.timestamp())),
             "X-Request-Nonce": f"nonce_{uuid.uuid4().hex}",
@@ -149,23 +160,82 @@ class InstalledShowcaseIntegrationTests(unittest.TestCase):
             "X-Experiment-Key": DEMO_EXPERIMENT_KEY,
             "X-Test-Source-IP": ip,
             "X-Test-Context-Time": context_time.isoformat(),
-            "User-Agent": "NusaMartBrowser/1.0",
+            "User-Agent": "UHAMKAMartBrowser/1.0",
         }
 
     def test_storefront_and_runtime_are_packaged_with_framework(self):
         page = self.client.get("/")
         self.assertEqual(page.status_code, 200)
-        self.assertIn(b"NusaMart", page.data)
-        self.assertIn(b"R-ATF Control Room", page.data)
+        self.assertIn(b"UHAMKA Mart", page.data)
+        self.assertNotIn(b"trust score", page.data.lower())
+        self.assertNotIn(b"threshold", page.data.lower())
+
+        dashboard = self.client.get("/ratf/dashboard/")
+        self.assertEqual(dashboard.status_code, 200)
+        self.assertIn(b"Gunakan nilai penelitian", dashboard.data)
 
         bootstrap = self.client.get("/app/api/bootstrap").get_json()
         self.assertEqual(bootstrap["framework"]["distribution"], "ratf-framework")
-        self.assertEqual(bootstrap["framework"]["policy"]["name"], "nusamart-checkout")
+        self.assertEqual(bootstrap["framework"]["policy"]["name"], DEMO_POLICY_NAME)
+
+        demo_context = self.client.get("/ratf/dashboard/api/demo-context")
+        self.assertEqual(demo_context.status_code, 200)
+        self.assertEqual(demo_context.get_json()["access_token"], DEMO_TOKEN)
+        self.assertIn(DEMO_TOKEN, demo_context.get_json()["authorization_header"])
+
+        research = self.client.get("/ratf/dashboard/api/research-summary").get_json()
+        self.assertTrue(research["available"])
+        self.assertEqual(research["security_rows"], 31220)
+        self.assertEqual(research["measured_runs"], 40)
 
         runtime = self.client.get("/app/api/runtime").get_json()
         self.assertTrue(runtime["deployment"]["demonstration_ready"])
         self.assertTrue(runtime["deployment"]["integration_ready"])
         self.assertFalse(runtime["deployment"]["production_ready"])
+
+    def test_research_policy_preset_can_be_restored_for_store_endpoint(self):
+        changed = self.client.put(
+            "/ratf/dashboard/api/config",
+            json={
+                "policy_id": DEMO_POLICY_NAME,
+                "weights": {
+                    "ip": 0,
+                    "device": 0,
+                    "time": 0,
+                    "frequency": 1,
+                    "token_history": 0,
+                },
+                "verify_threshold": 0.62,
+                "allow_threshold": 0.82,
+                "shadow_mode": False,
+            },
+        )
+        self.assertEqual(changed.status_code, 200)
+        self.assertEqual(changed.get_json()["policy_name"], DEMO_POLICY_NAME)
+        self.assertEqual(changed.get_json()["weights"]["frequency"], 1.0)
+
+        restored = self.client.put(
+            "/ratf/dashboard/api/config",
+            json={
+                "policy_id": DEMO_POLICY_NAME,
+                "weights": {
+                    "ip": 0.25,
+                    "device": 0.20,
+                    "time": 0.10,
+                    "frequency": 0.20,
+                    "token_history": 0.25,
+                },
+                "verify_threshold": 0.62,
+                "allow_threshold": 0.82,
+                "shadow_mode": False,
+            },
+        )
+        self.assertEqual(restored.status_code, 200)
+        self.assertEqual(restored.get_json()["allow_threshold"], 0.82)
+        config = self.client.get(
+            f"/ratf/dashboard/api/config?policy_id={DEMO_POLICY_NAME}"
+        ).get_json()
+        self.assertEqual(config["weights"]["ip"], 0.25)
 
     def test_allow_verify_block_and_replay_are_visible_to_client(self):
         body = {"product": "Kopi Gayo Pilihan", "quantity": 1, "unit_price": 89000}

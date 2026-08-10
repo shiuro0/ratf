@@ -60,7 +60,7 @@ version = {attr = "ratf.__version__"}
 where = ["src"]
 
 [tool.setuptools.package-data]
-ratf = ["py.typed", "templates/ratf/*.html", "openapi/*.yaml"]
+ratf = ["py.typed", "templates/ratf/*.html", "openapi/*.yaml", "data/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests", "validation_tests"]

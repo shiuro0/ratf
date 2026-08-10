@@ -22,9 +22,10 @@ from .logging_utils import AuditLogger
 from .storage import Storage, create_storage
 
 
-DEMO_TOKEN = "nusamart-demo-access-token"
-DEMO_FAMILY = "nusamart-customer-family"
-DEMO_EXPERIMENT_KEY = "nusamart-local-context-key-32-bytes"
+DEMO_TOKEN = "uhamka-mart-demo-access-token-full-value"
+DEMO_FAMILY = "uhamka-mart-customer-family"
+DEMO_EXPERIMENT_KEY = "uhamka-mart-local-context-key-32-bytes"
+DEMO_POLICY_NAME = "uhamka-mart-checkout"
 
 
 def _package_location() -> str:
@@ -39,14 +40,14 @@ def _identity_provider(access_token, _context):
         return None
     return {
         "active": True,
-        "subject": "customer-nusamart-001",
-        "client_id": "nusamart-web",
+        "subject": "customer-uhamka-001",
+        "client_id": "uhamka-mart-web",
         "scope": "catalog:read orders:write",
-        "token_id": "nusamart-demo-token-id",
+        "token_id": "uhamka-mart-demo-token-id",
         "family_id": DEMO_FAMILY,
         "metadata": {
-            "sub": "customer-nusamart-001",
-            "client_id": "nusamart-web",
+            "sub": "customer-uhamka-001",
+            "client_id": "uhamka-mart-web",
             "scope": "catalog:read orders:write",
             "issued_ip": "192.168.10.10",
             "issued_hour_utc": 10,
@@ -64,7 +65,7 @@ def _step_up(_context, identity, evaluation):
         metadata={
             "subject": identity.subject,
             "trigger": evaluation.reason_code,
-            "owner": "NusaMart Identity Provider",
+            "owner": "Penyedia Identitas UHAMKA Mart",
         },
     )
 
@@ -98,8 +99,8 @@ def create_showcase_app(
         experiment_mode=True,
         experiment_key=DEMO_EXPERIMENT_KEY,
         log_path=log_path,
-        token_hash_secret="nusamart-local-token-hash-secret",
-        audit_log_secret="nusamart-local-audit-chain-secret",
+        token_hash_secret="uhamka-mart-local-token-hash-secret",
+        audit_log_secret="uhamka-mart-local-audit-chain-secret",
     )
     selected_storage = storage or create_storage(settings)
     core_config = CoreConfig.from_settings(settings)
@@ -110,8 +111,24 @@ def create_showcase_app(
         RATF_CORE_CONFIG=core_config,
         RATF_DASHBOARD_ENABLED=True,
         RATF_DASHBOARD_UNSAFE_LOCAL=True,
+        RATF_DASHBOARD_DEFAULT_POLICY=DEMO_POLICY_NAME,
+        RATF_DASHBOARD_DEMO_CONTEXT={
+            "application_name": "UHAMKA Mart",
+            "endpoint": "/api/store/orders",
+            "reset_endpoint": "/app/api/reset",
+            "shadow_endpoint": "/app/api/shadow-mode",
+            "access_token": DEMO_TOKEN,
+            "authorization_header": f"Bearer {DEMO_TOKEN}",
+            "client_id": "uhamka-mart-web",
+            "device_id": "browser-customer-001",
+            "normal_ip": "192.168.10.10",
+            "normal_hour": 10,
+            "experiment_key": DEMO_EXPERIMENT_KEY,
+            "policy_name": DEMO_POLICY_NAME,
+            "warning": "Token ini hanya data demonstrasi lokal dan sengaja ditampilkan lengkap.",
+        },
         RATF_AUTHZEN_ENABLED=True,
-        RATF_AUTHZEN_API_KEY="nusamart-local-authzen-key",
+        RATF_AUTHZEN_API_KEY="uhamka-mart-local-authzen-key",
         RATF_RESEARCH_RESULTS_DIR=os.getenv("RATF_RESEARCH_RESULTS_DIR", ""),
     )
     audit_logger = AuditLogger(settings.log_path, settings.audit_log_secret)
@@ -122,8 +139,8 @@ def create_showcase_app(
         step_up_handler=CallbackStepUpHandler(_step_up),
         audit_logger=audit_logger,
     )
-    checkout_policy = ratf.policy(
-        "nusamart-checkout",
+    ratf.policy(
+        DEMO_POLICY_NAME,
         weights={
             "ip": 0.25,
             "device": 0.20,
@@ -137,18 +154,14 @@ def create_showcase_app(
 
     @app.get("/")
     def storefront():
-        return render_template(
-            "ratf/showcase.html",
-            framework_version=__version__,
-            storage_backend=selected_storage.backend_name,
-        )
+        return render_template("ratf/showcase.html")
 
     @app.get("/app/api/bootstrap")
     def bootstrap():
         return jsonify(
             {
                 "application": {
-                    "name": "NusaMart",
+                    "name": "UHAMKA Mart",
                     "owner": "Aplikasi contoh milik pengembang pengguna R-ATF",
                     "endpoint": "/api/store/orders",
                 },
@@ -156,12 +169,12 @@ def create_showcase_app(
                     "distribution": "ratf-framework",
                     "version": __version__,
                     "loaded_from": _package_location(),
-                    "policy": ratf.policy_config("nusamart-checkout"),
+                    "policy": ratf.policy_config(DEMO_POLICY_NAME),
                     "storage": selected_storage.backend_name,
                 },
                 "client": {
                     "access_token": DEMO_TOKEN,
-                    "client_id": "nusamart-web",
+                    "client_id": "uhamka-mart-web",
                     "device_id": "browser-customer-001",
                     "normal_ip": "192.168.10.10",
                     "normal_hour": 10,
@@ -174,22 +187,53 @@ def create_showcase_app(
     @ratf.protect(
         required_scope="orders:write",
         transactional=True,
-        policy=checkout_policy,
+        policy=DEMO_POLICY_NAME,
     )
     def create_order():
         payload = request.get_json(silent=True) or {}
-        product = str(payload.get("product", "Kopi Nusantara"))
-        quantity = max(1, min(int(payload.get("quantity", 1)), 10))
-        unit_price = max(0, int(payload.get("unit_price", 89000)))
+        raw_items = payload.get("items")
+        if not isinstance(raw_items, list) or not raw_items:
+            raw_items = [
+                {
+                    "product": payload.get("product", "Produk UHAMKA Mart"),
+                    "quantity": payload.get("quantity", 1),
+                    "unit_price": payload.get("unit_price", 89000),
+                }
+            ]
+        items = []
+        for raw in raw_items[:12]:
+            if not isinstance(raw, dict):
+                continue
+            quantity = max(1, min(int(raw.get("quantity", 1)), 10))
+            unit_price = max(0, int(raw.get("unit_price", 0)))
+            items.append(
+                {
+                    "product": str(raw.get("product", "Produk UHAMKA Mart")),
+                    "quantity": quantity,
+                    "unit_price": unit_price,
+                    "subtotal": quantity * unit_price,
+                }
+            )
+        if not items:
+            return jsonify({"error": "items_required"}), 400
+        subtotal = sum(item["subtotal"] for item in items)
+        discount = max(0, min(int(payload.get("discount", 0)), subtotal))
+        shipping_cost = max(0, int(payload.get("shipping_cost", 0)))
         return (
             jsonify(
                 {
                     "status": "order_created",
-                    "order_id": f"NUSA-{uuid.uuid4().hex[:8].upper()}",
-                    "product": product,
-                    "quantity": quantity,
-                    "total": quantity * unit_price,
-                    "message": "Pesanan diterima oleh backend NusaMart.",
+                    "order_id": f"UHM-{uuid.uuid4().hex[:8].upper()}",
+                    "items": items,
+                    "item_count": sum(item["quantity"] for item in items),
+                    "shipping_method": str(
+                        payload.get("shipping_method", "regular")
+                    ),
+                    "subtotal": subtotal,
+                    "discount": discount,
+                    "shipping_cost": shipping_cost,
+                    "total": subtotal - discount + shipping_cost,
+                    "message": "Pesanan UHAMKA Mart berhasil dibuat.",
                 }
             ),
             201,
@@ -201,8 +245,8 @@ def create_showcase_app(
             return jsonify({"error": "local_access_only"}), 403
         ratf.engine.reset()
         audit_logger.clear()
-        ratf.update_policy(shadow_mode=False)
-        return jsonify({"status": "reset", "shadow_mode": False})
+        policy = ratf.policy_config(DEMO_POLICY_NAME)["resolved"]
+        return jsonify({"status": "reset", "shadow_mode": policy["shadow_mode"]})
 
     @app.post("/app/api/shadow-mode")
     def shadow_mode():
@@ -210,7 +254,7 @@ def create_showcase_app(
             return jsonify({"error": "local_access_only"}), 403
         payload = request.get_json(silent=True) or {}
         enabled = bool(payload.get("enabled"))
-        ratf.update_policy(shadow_mode=enabled)
+        ratf.update_policy_profile(DEMO_POLICY_NAME, shadow_mode=enabled)
         return jsonify({"status": "updated", "shadow_mode": enabled})
 
     @app.get("/app/api/runtime")
@@ -221,34 +265,34 @@ def create_showcase_app(
         redis_active = selected_storage.backend_name == "redis"
         checks: list[dict[str, Any]] = [
             {
-                "name": "Paket dapat didistribusikan",
+                "name": "Paket Python dapat dipasang",
                 "ready": True,
-                "detail": f"ratf-framework {__version__} dimuat dari instalasi Python.",
+                "detail": f"ratf-framework {__version__} berhasil dimuat dari instalasi Python.",
             },
             {
-                "name": "WSGI server lokal",
+                "name": "Server demonstrasi",
                 "ready": importlib.util.find_spec("waitress") is not None,
-                "detail": "Showcase dijalankan dengan Waitress, bukan Flask development server.",
+                "detail": "Aplikasi dijalankan dengan Waitress, bukan server pengembangan Flask.",
             },
             {
-                "name": "State lintas instance",
+                "name": "Penyimpanan bersama",
                 "ready": redis_active,
-                "detail": "Redis demo aktif pada database khusus." if redis_active else "Memory storage hanya sesuai untuk demonstrasi satu proses.",
+                "detail": "Redis aktif pada database demonstrasi khusus." if redis_active else "Penyimpanan memori hanya sesuai untuk demonstrasi satu proses.",
             },
             {
-                "name": "Identity Provider produksi",
+                "name": "Sistem login aplikasi asli",
                 "ready": False,
-                "detail": "Showcase memakai token lokal; aplikasi nyata harus menghubungkan OAuth/OIDC miliknya.",
+                "detail": "Demo memakai token lokal; aplikasi nyata harus dihubungkan ke sistem login milik pengembang.",
             },
             {
-                "name": "HTTPS dan secret manager",
+                "name": "Koneksi aman dan pengelolaan kunci",
                 "ready": False,
-                "detail": "Belum disediakan oleh proses lokal ini.",
+                "detail": "HTTPS dan penyimpanan kunci aman belum disediakan oleh proses lokal ini.",
             },
             {
-                "name": "High availability dan observability",
+                "name": "Cadangan dan pemantauan layanan",
                 "ready": False,
-                "detail": "Redis failover, metrics, tracing, alerting, dan uji multi-node masih diperlukan.",
+                "detail": "Pengalihan saat gagal, metrik, penelusuran, peringatan, dan uji beberapa server masih diperlukan.",
             },
         ]
         return jsonify(
@@ -262,7 +306,7 @@ def create_showcase_app(
                     "demonstration_ready": True,
                     "integration_ready": True,
                     "production_ready": all(item["ready"] for item in checks),
-                    "classification": "alpha — siap demonstrasi dan integrasi terbatas, belum siap produksi skala besar",
+                    "classification": "siap untuk demonstrasi dan integrasi awal, belum siap untuk operasi skala besar",
                     "checks": checks,
                 },
                 "state": snapshot,
@@ -275,7 +319,7 @@ def create_showcase_app(
         return jsonify(
             {
                 "status": "step_up_placeholder",
-                "owner": "NusaMart Identity Provider",
+                "owner": "Penyedia Identitas UHAMKA Mart",
                 "message": "Pada aplikasi nyata, halaman ini dihubungkan ke OTP, passkey, atau MFA milik pengembang.",
             }
         )
@@ -293,7 +337,7 @@ def run(
 
     selected_port = int(port or os.getenv("RATF_SHOWCASE_PORT", "5100"))
     url = f"http://{host}:{selected_port}/"
-    print(f"NusaMart + R-ATF {__version__}: {url}")
+    print(f"UHAMKA Mart + R-ATF {__version__}: {url}")
     print(f"R-ATF Control Room       : {url}ratf/dashboard/")
     print("Hentikan server dengan tombol Stop di PyCharm/VS Code.")
     if open_browser:

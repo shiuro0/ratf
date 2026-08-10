@@ -58,7 +58,7 @@ def start_step_up(_context, identity, evaluation):
     )
 
 
-def create_app() -> Flask:
+def create_app(*, audit_path: str | None = None) -> Flask:
     use_redis = os.getenv("RATF_EXAMPLE_STORAGE", "memory").lower() == "redis"
     settings = replace(
         Settings(),
@@ -66,7 +66,11 @@ def create_app() -> Flask:
         allow_memory_fallback=not use_redis,
         experiment_mode=True,
         experiment_key="local-experiment-key-32-characters-long",
-        log_path=str(ROOT / "results" / "v0_1_demo_audit.jsonl"),
+        log_path=audit_path
+        or os.getenv(
+            "RATF_EXAMPLE_AUDIT_PATH",
+            str(ROOT / "results" / "v0_1_demo_audit.jsonl"),
+        ),
     )
     storage = create_storage(settings)
     policy = CoreConfig.from_settings(settings)

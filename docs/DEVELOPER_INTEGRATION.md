@@ -14,13 +14,13 @@ pip install ratf-framework
 
 Perintah tersebut sudah memasang adapter Flask dan WSGI server Waitress. Untuk
 memeriksa hasil instalasi tanpa mengambil repository, jalankan module
-`ratf.showcase` melalui Run Configuration PyCharm/VS Code. Halaman NusaMart
+`ratf.showcase` melalui Run Configuration PyCharm/VS Code. Halaman UHAMKA Mart
 akan terbuka dan Control Room tersedia pada `/ratf/dashboard/`.
 
 Sebelum publikasi, pengembang dapat memasang wheel atau repository:
 
 ```bash
-pip install "ratf-framework[flask] @ git+https://github.com/OWNER/REPOSITORY.git@v0.1.2"
+pip install "ratf-framework[flask] @ git+https://github.com/OWNER/REPOSITORY.git@v0.1.3"
 ```
 
 Ganti `OWNER/REPOSITORY` setelah repository publik dibuat.

@@ -1,0 +1,18 @@
+{
+  "available": true,
+  "security_rows": 31220,
+  "measured_runs": 40,
+  "standard_prevention_percent": 72.7273,
+  "ratf_prevention_percent": 100.0,
+  "contextual_requests_improved": 3000,
+  "legitimate_requests": 4000,
+  "legitimate_friction_percent": 0.0,
+  "max_p95_overhead_percent": 6.6259,
+  "largest_throughput_decrease_percent": 0.2466,
+  "max_failure_rate_percent": 0.0,
+  "security_quality_passed": true,
+  "performance_quality_passed": true,
+  "performance_criteria_passed": true,
+  "source": "ringkasan hasil eksperimen final yang disimpan bersama paket",
+  "source_type": "stored_research_summary"
+}
