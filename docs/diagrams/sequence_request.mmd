@@ -1,0 +1,32 @@
+sequenceDiagram
+    participant Client
+    participant API as Protected API
+    participant Registry as Redis Registries
+    participant Proof as Device Proof
+    participant Replay as Atomic Replay Control
+    participant Rate as Rate Limit
+    participant Score as R-ATF
+    participant Business
+    participant Audit as Audit Hash Chain
+
+    Client->>API: Token + client/device ID + timestamp + nonce + signature
+    API->>Registry: Validate token, active status, claims, scope
+    Registry-->>API: Token metadata + issuance context
+    API->>Proof: Verify binding, time window, HMAC proof
+    Proof-->>API: valid / invalid
+    API->>Replay: Atomically claim nonce and idempotency key
+    Replay-->>API: fresh / reused
+    API->>Rate: Increment fixed-window counter
+    Rate-->>API: request count
+    alt Standard controls
+        API->>Business: Forward valid request
+    else R-ATF
+        API->>Score: Evaluate issuance context + allowed history + frequency
+        Score-->>API: allow / verify / block
+        opt allow
+            API->>Business: Forward request
+            API->>Registry: Record token use and allowed context
+        end
+    end
+    API->>Audit: Append decision with previous_hash and entry_hash
+    API-->>Client: Business response or security response
