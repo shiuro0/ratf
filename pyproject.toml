@@ -30,10 +30,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/USERNAME/ratf-framework"
-Documentation = "https://github.com/USERNAME/ratf-framework/tree/main/docs"
-Issues = "https://github.com/USERNAME/ratf-framework/issues"
-Source = "https://github.com/USERNAME/ratf-framework"
+Homepage = "https://github.com/shiuro0/ratf-framework"
+Documentation = "https://github.com/shiuro0/ratf-framework/tree/main/docs"
+Issues = "https://github.com/shiuro0/ratf-framework/issues"
+Source = "https://github.com/shiuro0/ratf-framework"
 
 [project.optional-dependencies]
 flask = ["Flask>=3,<4"]
