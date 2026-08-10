@@ -29,6 +29,12 @@ dependencies = [
   "python-dotenv>=1,<2",
 ]
 
+[project.urls]
+Homepage = "https://github.com/USERNAME/ratf-framework"
+Documentation = "https://github.com/USERNAME/ratf-framework/tree/main/docs"
+Issues = "https://github.com/USERNAME/ratf-framework/issues"
+Source = "https://github.com/USERNAME/ratf-framework"
+
 [project.optional-dependencies]
 flask = ["Flask>=3,<4"]
 demo = ["Flask>=3,<4", "requests>=2.32,<3"]
