@@ -1,16 +1,11 @@
-# R-ATF Framework 0.1.4
+# R-ATF 0.1.4
 
-R-ATF adalah framework keamanan adaptif berbasis aturan untuk mengevaluasi
+R-ATF adalah Modul keamanan adaptif berbasis aturan untuk mengevaluasi
 setiap request API setelah autentikasi dasar berhasil. Framework menghitung
 trust score dari konsistensi IP, perangkat, waktu, frekuensi, dan riwayat
 penggunaan token, lalu menghasilkan `allow`, `verify`, atau `block`.
 
-Versi 0.1 menyatukan produk framework dan artefak penelitian dalam satu proyek.
-Algoritma eksperimen lama tetap digunakan sebagai sumber keputusan; lapisan baru
-menambahkan API publik, integrasi Identity Provider, Flask extension, AuthZEN,
-shadow mode, step-up hook, contoh Node.js, dan dashboard.
-
-## Penggunaan pada aplikasi sebenarnya
+## Penggunaan pada aplikasi 
 
 Dashboard bersifat opsional. Integrasi utama dilakukan melalui Flask extension
 atau evaluation service HTTP. Contoh endpoint penting dengan policy tersendiri:
