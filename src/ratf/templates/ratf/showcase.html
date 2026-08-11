@@ -70,7 +70,7 @@
         <div class="account"><span class="avatar">ZF</span><span><small>Selamat datang</small><strong>Zahrul</strong></span></div>
       </div>
     </div>
-    <nav class="nav"><a href="#products">Semua produk</a><a href="#products" onclick="setCategory('Pakaian')">Pakaian</a><a href="#products" onclick="setCategory('Aksesori')">Aksesori</a><a href="#products" onclick="setCategory('Alat Tulis')">Alat tulis</a><a class="manager" href="/ratf/dashboard/">Panel pengelola</a></nav>
+    <nav class="nav"><a href="#products">Semua produk</a><a href="#products" onclick="setCategory('Pakaian')">Pakaian</a><a href="#products" onclick="setCategory('Aksesori')">Aksesori</a><a href="#products" onclick="setCategory('Alat Tulis')">Alat tulis</a><a class="manager" href="/ratf/dashboard/">Control Room</a></nav>
   </header>
 
   <main class="container">
@@ -83,18 +83,16 @@
           <div class="hero-actions"><button class="btn btn-yellow" onclick="document.getElementById('products').scrollIntoView()">Lihat produk</button><button class="btn btn-white" onclick="addFeaturedProduct()">Tambah produk unggulan</button></div>
         </div>
         <div class="hero-visual">
-          <span class="float-badge badge-one">★ Pilihan minggu ini</span>
           <article class="hero-card"><div class="hero-product">🧥</div><h3>Hoodie Kampus Premium</h3><p>Nyaman untuk kegiatan kelas dan komunitas.</p><div class="hero-price"><strong>Rp189.000</strong><span>Hemat 16%</span></div></article>
-          <span class="float-badge badge-two">✓ Stok tersedia</span>
         </div>
       </div>
     </section>
 
     <section class="benefits" aria-label="Layanan toko">
-      <article class="benefit"><span class="benefit-icon">🚚</span><span><strong>Pengiriman fleksibel</strong><span>Pilih regular atau ambil di kampus</span></span></article>
-      <article class="benefit"><span class="benefit-icon">↩</span><span><strong>Pengembalian mudah</strong><span>Ajukan dalam tujuh hari</span></span></article>
-      <article class="benefit"><span class="benefit-icon">💬</span><span><strong>Bantuan cepat</strong><span>Tim layanan siap membantu</span></span></article>
-      <article class="benefit"><span class="benefit-icon">🎓</span><span><strong>Harga mahasiswa</strong><span>Promo rutin setiap bulan</span></span></article>
+      <article class="benefit"><span class="benefit-icon"></span><span><strong>Pengiriman fleksibel</strong><span>Pilih regular atau ambil di kampus</span></span></article>
+      <article class="benefit"><span class="benefit-icon"></span><span><strong>Pengembalian mudah</strong><span>Ajukan dalam tujuh hari</span></span></article>
+      <article class="benefit"><span class="benefit-icon"></span><span><strong>Bantuan cepat</strong><span>Tim layanan siap membantu</span></span></article>
+      <article class="benefit"><span class="benefit-icon"></span><span><strong>Harga mahasiswa</strong><span>Promo rutin setiap bulan</span></span></article>
     </section>
 
     <section id="products">
@@ -130,7 +128,7 @@
 
   <div class="modal-wrap" id="resultModal"><div class="modal"><div class="modal-icon" id="modalIcon">✓</div><h2 id="modalTitle">Pesanan berhasil</h2><p id="modalText"></p><div class="order-id" id="orderId"></div><button class="btn" onclick="closeModal()">Kembali berbelanja</button></div></div>
   <div class="toast" id="toast"></div>
-  <footer>UHAMKA Mart merupakan aplikasi contoh untuk demonstrasi akademik dan bukan toko resmi. <a href="/ratf/dashboard/">Panel pengelola</a></footer>
+  <footer>UHAMKA Mart bukan toko resmi kami. <a href="/ratf/dashboard/">Control Room</a></footer>
 
   <script>
     let bootstrapData=null,currentCategory='Semua',promoActive=false;
