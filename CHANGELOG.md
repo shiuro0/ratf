@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.1.4 UI wording and packaged template refresh
+
+- Memasukkan revisi terbaru `showcase.html` dan `dashboard.html` ke dalam
+  distribusi paket.
+- Mengganti nama tautan pengelola pada UHAMKA Mart menjadi Control Room,
+  menyederhanakan hero dan footer, serta mengurangi elemen dekoratif layanan.
+- Menyederhanakan keterangan pada Control Room dan menegaskan bahwa token
+  showcase merupakan opaque token yang diperiksa melalui Identity Provider.
+- Mempertahankan core, bobot penelitian, threshold, endpoint, data eksperimen,
+  dan public API tanpa perubahan.
+- Memperbarui GitHub Actions ke action berbasis Node.js 24 agar workflow build
+  dan publish tidak lagi menggunakan action Node.js 20 yang deprecated.
+
 ## v0.1.3 UHAMKA Mart and examiner-friendly Control Room
 
 - Mengganti aplikasi contoh NusaMart menjadi UHAMKA Mart dan memisahkan

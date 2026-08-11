@@ -21,7 +21,7 @@ Setelah menekan **Run**, browser membuka alamat berikut:
 Jika paket belum dipasang, gunakan terminal pada virtual environment yang sama:
 
 ```powershell
-pip install --upgrade --no-cache-dir ratf-framework==0.1.3
+pip install --upgrade --no-cache-dir ratf-framework==0.1.4
 ```
 
 ## Urutan demonstrasi yang disarankan

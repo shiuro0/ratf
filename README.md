@@ -1,4 +1,4 @@
-# R-ATF Framework 0.1.3
+# R-ATF Framework 0.1.4
 
 R-ATF adalah framework keamanan adaptif berbasis aturan untuk mengevaluasi
 setiap request API setelah autentikasi dasar berhasil. Framework menghitung
@@ -67,14 +67,14 @@ Pengguna yang sudah memasang versi sebelumnya dapat memperbarui package tanpa
 memindahkan folder proyek:
 
 ```bash
-pip install --upgrade --no-cache-dir ratf-framework==0.1.3
+pip install --upgrade --no-cache-dir ratf-framework==0.1.4
 ```
 
 Flask dan Waitress sudah menjadi dependency paket. Pengembang tidak perlu
 mengunduh atau memindahkan folder repository untuk menjalankan showcase.
 
-Perintah tersebut belum akan mengambil versi ini dari internet sebelum paket
-benar-benar dipublikasikan. Panduan pemilik paket berada di
+Perintah dengan nomor versi tertentu baru berhasil setelah rilis tersebut
+selesai dipublikasikan ke PyPI. Panduan pemilik paket berada di
 `docs/PUBLIC_DISTRIBUTION.md`.
 
 ### Menjalankan showcase dari paket terpasang

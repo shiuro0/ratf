@@ -2,10 +2,9 @@
 
 ## Status
 
-Kode sudah dapat dibangun menjadi wheel dan source distribution, tetapi belum
-otomatis tersedia melalui `pip install ratf-framework` sampai pemilik membuat
-repository publik dan menerbitkan paket ke PyPI. Nama distribusi juga harus
-diperiksa kembali karena nama PyPI bersifat global.
+Distribusi `ratf-framework` sudah tersedia di PyPI. Setiap perubahan baru tetap
+harus menggunakan nomor versi yang belum pernah diterbitkan karena file pada
+rilis PyPI lama tidak dapat ditimpa.
 
 Wheel saat ini sudah membawa Flask, Waitress, template UHAMKA Mart, template
 Control Room, dan console entry point. Artinya, setelah rilis PyPI berhasil,
@@ -29,7 +28,8 @@ menjalankan module `ratf.showcase`.
 5. Buat project/pending publisher di PyPI.
 6. Hubungkan `.github/workflows/release.yml` sebagai Trusted Publisher dengan
    environment bernama `pypi`.
-7. Buat GitHub Release dari tag versi `v0.1.3`.
+7. Buat GitHub Release dari tag versi `v0.1.4` setelah seluruh perubahan sudah
+   di-commit dan didorong ke repository.
 
 Workflow release membangun wheel dan source distribution, memeriksanya, lalu
 mengunggah melalui identitas OIDC berumur pendek. Tidak perlu menyimpan API token
@@ -40,10 +40,10 @@ PyPI jangka panjang dalam repository.
 Tidak perlu membuat repository atau folder proyek baru. Ganti file pada path
 yang sama, commit ke branch `main`, lalu tunggu CI selesai.
 
-- Pertahankan rilis lama sebagai riwayat dan buat `v0.1.3` pada repository
+- Pertahankan rilis lama sebagai riwayat dan buat `v0.1.4` pada repository
   yang sama. PyPI tidak mengizinkan isi versi yang sudah terbit untuk ditimpa.
 - Mengedit judul, isi, atau asset release `v0.1.1` tidak menerbitkan package
-  `v0.1.3`. Buat tag dan GitHub Release baru bernama `v0.1.3` agar event
+  `v0.1.4`. Buat tag dan GitHub Release baru bernama `v0.1.4` agar event
   `release: published` menjalankan workflow publikasi.
 - Jangan menghapus release atau tag lama hanya karena pengguna akan diarahkan
   ke versi terbaru.
@@ -62,7 +62,7 @@ python -m twine check dist/*
 Uji instalasi pada virtual environment baru:
 
 ```bash
-pip install dist/ratf_framework-0.1.3-py3-none-any.whl
+pip install dist/ratf_framework-0.1.4-py3-none-any.whl
 python -c "from ratf import RATF, PolicyProfile; print('R-ATF siap')"
 python -m ratf.showcase
 ```

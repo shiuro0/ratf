@@ -46,6 +46,23 @@ smoke benchmark untuk mendeteksi regresi besar pada core. Ia tidak mengukur
 Gunicorn, jaringan, Redis, CPU container, memori container, atau konkurensi k6,
 sehingga tidak menggantikan hasil performa utama BAB IV.
 
+## Pemeriksaan paket 0.1.4 (11 Agustus 2026)
+
+Revisi UHAMKA Mart dan Control Room diperiksa kembali tanpa mengubah core
+keputusan. Seluruh 15 test tetap lulus: 2 regresi, 6 integrasi, 2
+interoperabilitas, 4 keamanan, dan 1 performance smoke. Kedua template lolos
+pemeriksaan struktur HTML, tidak memiliki ID ganda, dan seluruh JavaScript
+inline lolos pemeriksaan sintaks Node.js.
+
+Wheel `ratf_framework-0.1.4-py3-none-any.whl` dan source distribution
+`ratf_framework-0.1.4.tar.gz` dibangun dari salinan sumber yang bersih. Isi
+template di dalam wheel dibandingkan byte per byte dengan file revisi dan
+hasilnya sama. Wheel kemudian dipasang pada virtual environment baru di luar
+repository; versi distribusi, import `ratf`, UHAMKA Mart, Control Room, API
+bootstrap, konteks demonstrasi, ringkasan penelitian, dan konfigurasi policy
+berhasil dimuat. `pip check` tidak menemukan dependency rusak dan `twine check`
+lulus untuk kedua artefak distribusi.
+
 ## Hubungan dengan hasil penelitian lama
 
 Validasi v0.1 menjawab pertanyaan apakah hasil penelitian dapat dikemas,
