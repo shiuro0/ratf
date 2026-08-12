@@ -1,4 +1,4 @@
-# RATF
+# RATF V0.2.0
 
 RATF adalah modul keamanan adaptif berbasis aturan untuk membantu aplikasi
 menilai penggunaan access token pada setiap request API. Modul ini bekerja
