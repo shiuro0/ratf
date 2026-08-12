@@ -13,7 +13,7 @@ OIDC_CLIENT_ID=resource-server
 OIDC_CLIENT_SECRET=isi-dari-secret-manager
 TOKEN_HASH_SECRET=secret-acak-minimal-32-byte
 AUDIT_LOG_SECRET=secret-acak-minimal-32-byte
-LOG_PATH=results/production_audit.jsonl
+LOG_PATH=instance/production_audit.jsonl
 ```
 
 Gunakan secret manager dan HTTPS pada penerapan sebenarnya. Endpoint

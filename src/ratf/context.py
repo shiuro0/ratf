@@ -65,12 +65,20 @@ def _context_time(request: Request, settings: Settings, experiment_allowed: bool
         return datetime.now(timezone.utc)
 
 
+def _user_agent(request: Request, experiment_allowed: bool) -> str:
+    if experiment_allowed:
+        simulated = request.headers.get("X-Test-User-Agent")
+        if simulated:
+            return simulated.strip()
+    return request.headers.get("User-Agent", "unknown")
+
+
 def extract_issuance_context(request: Request, settings: Settings) -> dict[str, Any]:
     allowed = experiment_headers_allowed(request, settings)
     now = _context_time(request, settings, allowed)
     return {
         "issued_ip": _source_ip(request, settings, allowed),
-        "issued_user_agent": request.headers.get("User-Agent", "unknown"),
+        "issued_user_agent": _user_agent(request, allowed),
         "issued_hour_utc": now.hour,
         "issued_at_context": now.isoformat(),
         "experiment_headers_accepted": allowed,
@@ -93,7 +101,7 @@ def extract_context(request: Request, settings: Settings) -> RequestContext:
         run_id=request.headers.get("X-Run-Id", "manual"),
         scenario_label=request.headers.get("X-Scenario-Label", "manual"),
         source_ip=source_ip,
-        user_agent=request.headers.get("User-Agent", "unknown"),
+        user_agent=_user_agent(request, experiment_allowed),
         client_id=request.headers.get("X-Client-Id", "unknown-client"),
         device_id=request.headers.get("X-Device-Id", ""),
         method=request.method,

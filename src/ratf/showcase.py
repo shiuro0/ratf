@@ -30,7 +30,7 @@ DEMO_POLICY_NAME = "uhamka-mart-checkout"
 
 def _package_location() -> str:
     try:
-        return str(Path(distribution("ratf-framework").locate_file("")).resolve())
+        return str(Path(distribution("ratf").locate_file("")).resolve())
     except PackageNotFoundError:
         return str(Path(__file__).resolve().parents[2])
 
@@ -165,8 +165,8 @@ def create_showcase_app(
                     "owner": "Aplikasi contoh milik pengembang pengguna R-ATF",
                     "endpoint": "/api/store/orders",
                 },
-                "framework": {
-                    "distribution": "ratf-framework",
+                "module": {
+                    "distribution": "ratf",
                     "version": __version__,
                     "loaded_from": _package_location(),
                     "policy": ratf.policy_config(DEMO_POLICY_NAME),
@@ -265,9 +265,9 @@ def create_showcase_app(
         redis_active = selected_storage.backend_name == "redis"
         checks: list[dict[str, Any]] = [
             {
-                "name": "Paket Python dapat dipasang",
+                "name": "Modul Python dapat dipasang",
                 "ready": True,
-                "detail": f"ratf-framework {__version__} berhasil dimuat dari instalasi Python.",
+                "detail": f"ratf {__version__} berhasil dimuat dari instalasi Python.",
             },
             {
                 "name": "Server demonstrasi",
@@ -298,7 +298,7 @@ def create_showcase_app(
         return jsonify(
             {
                 "distribution": {
-                    "name": "ratf-framework",
+                    "name": "ratf",
                     "version": __version__,
                     "loaded_from": _package_location(),
                 },

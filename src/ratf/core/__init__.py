@@ -1,4 +1,4 @@
-"""Framework-independent contracts and evaluation engine for R-ATF."""
+"""Web-framework-independent contracts and evaluation engine for RATF."""
 
 from .config import CoreConfig
 from .models import (

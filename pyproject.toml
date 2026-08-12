@@ -3,9 +3,9 @@ requires = ["setuptools>=77.0.3", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ratf-framework"
+name = "ratf"
 dynamic = ["version"]
-description = "Reusable rule-based adaptive trust framework for API access decisions"
+description = "Reusable rule-based adaptive trust module for API access decisions"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
@@ -32,11 +32,11 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/shiuro0/ratf-framework"
-Repository = "https://github.com/shiuro0/ratf-framework"
-Documentation = "https://github.com/shiuro0/ratf-framework#readme"
-Issues = "https://github.com/shiuro0/ratf-framework/issues"
-Changelog = "https://github.com/shiuro0/ratf-framework/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/shiuro0/ratf"
+Repository = "https://github.com/shiuro0/ratf"
+Documentation = "https://github.com/shiuro0/ratf#readme"
+Issues = "https://github.com/shiuro0/ratf/issues"
+Changelog = "https://github.com/shiuro0/ratf/blob/main/CHANGELOG.md"
 
 [project.scripts]
 ratf-showcase = "ratf.showcase:main"
@@ -63,5 +63,5 @@ where = ["src"]
 ratf = ["py.typed", "templates/ratf/*.html", "openapi/*.yaml", "data/*.json"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "validation_tests"]
+testpaths = ["tests"]
 pythonpath = ["src"]

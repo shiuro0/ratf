@@ -33,7 +33,7 @@ def create_app() -> Flask:
         redis_url=required_environment("REDIS_URL"),
         token_hash_secret=required_environment("TOKEN_HASH_SECRET"),
         audit_log_secret=required_environment("AUDIT_LOG_SECRET"),
-        log_path=os.getenv("LOG_PATH", "results/production_audit.jsonl"),
+        log_path=os.getenv("LOG_PATH", "instance/production_audit.jsonl"),
     )
     core_config = CoreConfig.from_settings(settings)
     # This example uses an OAuth/OIDC access token. Enable device proof only

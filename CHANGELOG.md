@@ -1,143 +1,27 @@
 # Changelog
 
-## v0.1.4 UI wording and packaged template refresh
+Perubahan penting pada RATF dicatat pada berkas ini.
 
-- Memasukkan revisi terbaru `showcase.html` dan `dashboard.html` ke dalam
-  distribusi paket.
-- Mengganti nama tautan pengelola pada UHAMKA Mart menjadi Control Room,
-  menyederhanakan hero dan footer, serta mengurangi elemen dekoratif layanan.
-- Menyederhanakan keterangan pada Control Room dan menegaskan bahwa token
-  showcase merupakan opaque token yang diperiksa melalui Identity Provider.
-- Mempertahankan core, bobot penelitian, threshold, endpoint, data eksperimen,
-  dan public API tanpa perubahan.
-- Memperbarui GitHub Actions ke action berbasis Node.js 24 agar workflow build
-  dan publish tidak lagi menggunakan action Node.js 20 yang deprecated.
+## 0.2.0
 
-## v0.1.3 UHAMKA Mart and examiner-friendly Control Room
+- Mengubah identitas repository dan distribusi dari `ratf-framework` menjadi
+  `ratf` tanpa mengubah namespace Python `ratf`.
+- Mempertahankan API publik untuk core, Flask extension, Identity Provider,
+  policy profile, shadow mode, step-up hook, AuthZEN, Redis, dan audit log.
+- Menyelaraskan skenario verify pada showcase dengan konteks penelitian sehingga
+  contoh utama menghasilkan trust score `0.7075`.
+- Menambahkan header simulasi `X-Test-User-Agent` yang hanya diterima ketika
+  experiment mode dan experiment key aktif.
+- Menambahkan README, Quick Start, model keputusan, panduan migrasi, dan panduan
+  publikasi yang berorientasi pada pengembang aplikasi.
+- Mengubah `validation_tests/` menjadi struktur standar `tests/`.
+- Mengubah `run_all_checks.py` menjadi `run_checks.py` dan menghentikan penulisan
+  laporan hasil ke repository.
+- Menghapus laporan validasi, panduan BAB IV, dan release note lama dari source
+  distribution publik. Test otomatis tetap dipertahankan.
 
-- Mengganti aplikasi contoh NusaMart menjadi UHAMKA Mart dan memisahkan
-  pengalaman belanja dari penjelasan teknis framework.
-- Menambahkan pencarian, kategori, favorit, keranjang multi-produk, pilihan
-  pengiriman, kode promo, dan hasil checkout pada aplikasi contoh.
-- Memusatkan skenario normal, perpindahan token, exact replay, konteks risiko,
-  riwayat, audit, kesiapan, dan hasil penelitian di Control Room.
-- Menambahkan tombol untuk mengembalikan bobot dan ambang keputusan yang
-  digunakan dalam penelitian serta dukungan mengubah policy endpoint aktif.
-- Menampilkan token demonstrasi secara lengkap hanya pada Control Room lokal
-  dan request DevTools, disertai peringatan agar tidak digunakan pada produksi.
-- Menyertakan ringkasan hasil eksperimen final dalam paket tanpa menghitung
-  ulang atau mengubah data pengujian keamanan dan kinerja lama.
+## Riwayat sebelum perubahan nama
 
-## v0.1.2 packaged showcase and control room
-
-- Menambahkan showcase web NusaMart yang ikut terpasang dalam wheel dan dapat
-  dijalankan melalui module `ratf.showcase` atau entry point `ratf-showcase`.
-- Menambahkan alur visual allow, verify, exact replay, block konteks, shadow
-  mode, inspeksi request/response, snapshot backend, dan kesiapan produksi.
-- Memperbarui Control Room tanpa menghapus fungsi pengaturan policy dan
-  menjadikan Flask serta Waitress dependency instalasi standar.
-- Menambahkan pemeriksaan integrasi showcase dan instalasi wheel dari working
-  directory di luar repository.
-- Menambahkan URL publik `shiuro0/ratf-framework` pada metadata paket untuk
-  homepage, repository, dokumentasi, issue tracker, dan changelog.
-- Mempertahankan core, eksperimen keamanan, data k6, dan public API v0.1.1 agar
-  pembaruan antarmuka tidak mengubah hasil penelitian lama.
-
-## v0.1.1 public integration API
-
-- Menambahkan `PolicyProfile` untuk bobot, threshold, shadow mode, dan batas
-  burst yang dapat dikonfigurasi per-endpoint tanpa mengubah policy global.
-- Menambahkan registry `ratf.policy()` dan parameter
-  `@ratf.protect(..., policy=...)`.
-- Menambahkan pemilihan `policy_id` pada evaluation service AuthZEN agar
-  aplikasi non-Python dapat memakai profil kebijakan yang sama.
-- Menambahkan nama policy pada response header, hasil evaluasi, dan audit.
-- Menambahkan contoh endpoint pembayaran dengan policy lebih ketat serta
-  dashboard untuk memilih policy endpoint.
-- Menyederhanakan skrip pada folder contoh Flask dan Node.js yang sudah ada,
-  serta menambahkan snapshot debug untuk histori konteks dan event terbaru.
-- Menambahkan metadata distribusi, dokumentasi publikasi, dan workflow CI/PyPI.
-
-## v0.1.0 reusable framework
-
-- Memisahkan `RequestContext`, konfigurasi kebijakan, kontrak, dan evaluation
-  engine dari Flask.
-- Menambahkan packaging `pyproject.toml`, wheel, lisensi MIT, dan Flask
-  extension `RATF`.
-- Menambahkan adapter local registry, callback aplikasi, dan OIDC token
-  introspection untuk Identity Provider.
-- Menambahkan shadow mode yang tidak melewati autentikasi/replay serta step-up
-  hook untuk MFA milik aplikasi.
-- Menambahkan AuthZEN-compatible evaluation endpoint dan OpenAPI 3.1.
-- Menambahkan contoh integrasi Flask dan Node.js serta dashboard konfigurasi.
-- Menambahkan 12 validation test berbasis unittest; seluruhnya lulus pada
-  regression, integration, interoperability, security, dan performance smoke.
-- Mengimpor hasil eksperimen keamanan dan kinerja lama ke
-  `results/research_final` dengan manifest sumber dan pemeriksaan konflik.
-- Memperbarui naskah BAB I–V dan PPT tanpa mengubah angka eksperimen lama.
-
-## Pembaruan client PyCharm
-
-- Menempatkan body, konteks, dan request utama pada masing-masing file S1–S15.
-- Memindahkan fungsi teknis yang berulang ke `demo_client_tools.py`.
-- Mempertahankan penyamaran kredensial, hasil JSON, dan audit hash chain.
-
-## v6.0 final fix
-
-- Menyelaraskan HMAC GET/HEAD dengan body kosong agar S7 mencapai rate limiter.
-- Membagi S7 menjadi setup sampai hard limit dan tepat N sampel serangan.
-- Menambahkan response request-counter khusus bukti eksperimen.
-- Membekukan kontrak keputusan/status/reason code untuk S1–S15.
-- Menyamakan jumlah sampel primer seluruh skenario; current-token control S3
-  dipindahkan menjadi setup.
-- Menambahkan scenario-contract dan security-protocol fingerprint.
-- Membuat analyzer gagal ketika skenario hilang, jumlah tidak tepat, fase salah,
-  outcome menyimpang, atau bukti S7 tidak valid.
-- Menambahkan paired preflight, exact repetition gate, counterbalancing, dan
-  pencegahan pencampuran stale results.
-- Menambahkan ekspor otomatis Tabel 4.15–4.18 dan final validation report.
-- Memperbaiki Docker `PYTHONPATH`, package `scripts`, dan cache pytest non-root.
-- Menambah regression suite dari 18 menjadi 26 test.
-- Membersihkan residual state kedua Redis database sebelum setiap k6 run dan
-  mewajibkan kelengkapan VU serta resource samples.
-
-## v5 final testing protocol
-
-- Menyelaraskan kriteria performa dengan proposal: tambahan p95 latency maksimal 10 ms.
-- Menambahkan otomasi k6 lima pengulangan pada VUS 1, 10, 25, dan 50.
-- Menambahkan warm-up, counterbalancing urutan sistem, serta pencatatan CPU/memori API dan Redis.
-- Menambahkan analisis otomatis per-run, agregat mean/SD, dan perbandingan Standard versus R-ATF.
-- Memisahkan latensi skenario keamanan dari bukti performa utama k6.
-
-## v5 startup reliability fix
-
-- Menambahkan entrypoint Docker dengan validasi konfigurasi, pemeriksaan izin audit log, dan bounded wait untuk Redis.
-- Mencegah satu kegagalan ping Redis saat app factory dibentuk berubah menjadi restart loop Gunicorn.
-- Mengembalikan HTTP 503 pada `/health` ketika storage tidak tersedia.
-- Membatasi restart API menjadi lima percobaan dan menambahkan masa awal health check.
-- Menambahkan pengujian untuk status health yang degraded.
-
-## v5
-
-- Mempertahankan judul penelitian dan menambahkan dokumen penyelarasan proposal.
-- Menambahkan generated `.env`, strict startup, preflight, config snapshot, dan config fingerprint.
-- Mengubah Redis menjadi fail-closed untuk eksperimen final.
-- Melindungi device enrollment dan mencegah role/scope escalation dari token request.
-- Device secret tidak lagi disimpan plaintext di Redis.
-- Menambahkan baseline konteks saat token diterbitkan.
-- Context history hanya belajar dari request allow untuk mencegah profile poisoning.
-- Menggunakan atomic claim untuk nonce dan idempotency key.
-- Memakai satu request counter untuk standard controls dan trust score.
-- Menambahkan access-token replacement policy per session family.
-- Menambahkan HMAC hash chain pada audit log.
-- Menambahkan skenario stolen-before-first-use dan legitimate roaming.
-- Menambahkan run manifest, experiment quality checks, repeated-run aggregation, dan system comparison.
-- Menambahkan validasi payload order/pembayaran dan security response headers.
-- Menjalankan container sebagai non-root dan membatasi port ke localhost.
-- Menambahkan 15 unit/integration tests.
-
-## v4
-
-- Memperkuat baseline menjadi standard controls.
-- Menambahkan JWT dan opaque token, registry, revocation, scope, nonce, device proof, rate limit, dan R-ATF.
-- Memisahkan strict FPR, challenge rate, dan friction rate.
+Versi 0.1.0 sampai 0.1.4 diterbitkan dengan nama distribusi
+`ratf-framework`. Versi tersebut menjadi dasar 0.2.0 dan tetap dipertahankan
+pada riwayat repository/rilis lama.

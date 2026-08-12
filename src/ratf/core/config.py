@@ -6,7 +6,7 @@ from typing import Any, Mapping
 
 @dataclass
 class CoreConfig:
-    """Mutable policy configuration owned by the framework core."""
+    """Mutable policy configuration owned by the RATF core."""
 
     allow_threshold: float = 0.82
     verify_threshold: float = 0.62

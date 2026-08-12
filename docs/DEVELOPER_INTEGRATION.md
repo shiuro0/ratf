@@ -1,15 +1,15 @@
-# Integrasi R-ATF pada aplikasi pengembang
+# Integrasi RATF pada aplikasi pengembang
 
 R-ATF dipasang pada aplikasi sebagai lapisan evaluasi setelah access token
 divalidasi oleh Identity Provider dan sebelum fungsi bisnis dijalankan.
-Dashboard tidak diperlukan pada aplikasi yang memakai framework.
+Dashboard tidak diperlukan pada aplikasi yang memakai modul.
 
 ## Instalasi
 
 Setelah paket dipublikasikan ke PyPI:
 
 ```bash
-pip install ratf-framework
+pip install ratf
 ```
 
 Perintah tersebut sudah memasang adapter Flask dan WSGI server Waitress. Untuk
@@ -20,10 +20,10 @@ akan terbuka dan Control Room tersedia pada `/ratf/dashboard/`.
 Sebelum publikasi, pengembang dapat memasang wheel atau repository:
 
 ```bash
-pip install "ratf-framework[flask] @ git+https://github.com/OWNER/REPOSITORY.git@v0.1.4"
+pip install "ratf[flask] @ git+https://github.com/shiuro0/ratf.git@v0.2.0"
 ```
 
-Ganti `OWNER/REPOSITORY` setelah repository publik dibuat.
+Gunakan instalasi GitHub hanya sebelum distribusi `ratf` tersedia di PyPI.
 
 ## Bobot dan threshold
 
@@ -157,7 +157,7 @@ app.config["RATF_POLICIES"] = {
 
 Gunakan `CallbackIdentityProvider` jika aplikasi sudah memiliki fungsi validasi
 token, atau `OIDCIntrospectionIdentityProvider` untuk endpoint introspection.
-R-ATF tidak mengambil alih proses login dan tidak menerbitkan token produksi.
+RATF tidak mengambil alih proses login dan tidak menerbitkan token produksi.
 
 Keputusan `verify` memanggil `StepUpHandler`. Hook hanya membuat atau memulai
 challenge; keberhasilan MFA harus divalidasi oleh Identity Provider, bukan
@@ -168,7 +168,7 @@ Contoh integrasi yang tidak mengaktifkan dashboard terdapat di
 
 ## Bahasa selain Python
 
-Aplikasi Node.js, Java, Go, PHP, atau bahasa lain menggunakan R-ATF sebagai
+Aplikasi Node.js, Java, Go, PHP, atau bahasa lain menggunakan RATF sebagai
 Policy Decision Point melalui:
 
 ```text
@@ -195,7 +195,7 @@ Kontrak lengkap tersedia pada `src/ratf/openapi/ratf-evaluation.openapi.yaml`.
 
 Memory storage dan dashboard lokal hanya digunakan untuk pengembangan.
 Pengembang cukup melakukan smoke test integrasi aplikasinya. Skenario keamanan
-S1–S15 dan eksperimen k6 merupakan validasi framework oleh maintainer dan tidak
+S1–S15 dan eksperimen k6 merupakan pengujian penelitian oleh maintainer dan tidak
 harus dijalankan ulang oleh setiap pengguna paket.
 
 ## Arti kesiapan showcase

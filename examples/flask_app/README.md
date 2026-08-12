@@ -1,7 +1,7 @@
 # Contoh integrasi Flask
 
-Folder ini adalah contoh Python utama dan tetap memakai struktur proyek lama.
-Run `app.py` melalui PyCharm, lalu Run `run_client.py` pada proses terpisah.
+Folder ini adalah contoh integrasi Python utama. Run `app.py` melalui PyCharm,
+lalu Run `run_client.py` pada proses terpisah.
 
 Client memperlihatkan empat hal:
 
@@ -20,6 +20,6 @@ Redis aplikasi. Redis menyimpan profile, history, nonce, idempotency, dan rate
 counter; keputusan audit tetap disimpan dalam log JSONL dengan hash chain.
 
 Endpoint `/app/debug/ratf` hanya untuk pengembangan lokal dan membutuhkan header
-`X-Debug-Key`. Jangan membukanya ke internet. Pengembang aplikasi tidak perlu
-mengulang eksperimen keamanan S1–S15 atau pengujian k6 hanya untuk mencoba
-integrasi ini.
+`X-Debug-Key`. Jangan membukanya ke internet. Pengembang cukup menjalankan
+pemeriksaan yang sesuai dengan aplikasinya; eksperimen penelitian tidak perlu
+diulang hanya untuk mencoba integrasi ini.

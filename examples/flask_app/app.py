@@ -69,7 +69,7 @@ def create_app(*, audit_path: str | None = None) -> Flask:
         log_path=audit_path
         or os.getenv(
             "RATF_EXAMPLE_AUDIT_PATH",
-            str(ROOT / "results" / "v0_1_demo_audit.jsonl"),
+            str(ROOT / "instance" / "ratf_example_audit.jsonl"),
         ),
     )
     storage = create_storage(settings)
@@ -81,7 +81,6 @@ def create_app(*, audit_path: str | None = None) -> Flask:
         RATF_CORE_CONFIG=policy,
         RATF_DASHBOARD_ENABLED=True,
         RATF_DASHBOARD_UNSAFE_LOCAL=True,
-        RATF_RESEARCH_RESULTS_DIR=str(ROOT / "results" / "research_final"),
         RATF_AUTHZEN_ENABLED=True,
         RATF_AUTHZEN_API_KEY="local-authzen-service-key",
     )
@@ -111,7 +110,7 @@ def create_app(*, audit_path: str | None = None) -> Flask:
     def home():
         return jsonify(
             {
-                "framework": "R-ATF 0.1",
+                "module": "RATF",
                 "dashboard": "/ratf/dashboard/",
                 "authzen": "/access/v1/evaluation",
                 "local_debug": "/app/debug/ratf",

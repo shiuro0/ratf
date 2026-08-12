@@ -1,6 +1,6 @@
 # Security Policy
 
-R-ATF 0.x masih berstatus alpha dan belum diklaim siap produksi tanpa security
+RATF 0.x masih berstatus alpha dan belum diklaim siap produksi tanpa security
 review pada lingkungan pengguna.
 
 Jangan membuka laporan kerentanan yang memuat token, secret, data pengguna, atau

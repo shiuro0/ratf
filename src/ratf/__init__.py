@@ -1,10 +1,10 @@
-"""Rule-Based Adaptive Trust Framework.
+"""Rule-Based Adaptive Trust (R-ATF).
 
 The base package stays importable without Flask. Flask-specific objects are
 loaded only when requested.
 """
 
-__version__ = "0.1.4"
+__version__ = "0.2.0"
 
 from .core import CoreConfig, PolicyProfile
 

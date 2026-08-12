@@ -1,4 +1,4 @@
-# Referensi Konfigurasi
+# Referensi konfigurasi
 
 ## Konfigurasi aplikasi/library
 
@@ -9,7 +9,7 @@
 | `RATF_IDENTITY_PROVIDER` | Adapter validasi token milik aplikasi |
 | `RATF_STORAGE` | Implementasi penyimpanan state, umumnya Redis |
 | `RATF_STEP_UP_HANDLER` | Hook challenge untuk keputusan `verify` |
-| `RATF_AUDIT_LOGGER` | Sink audit framework |
+| `RATF_AUDIT_LOGGER` | Pencatat audit modul |
 | `RATF_SHADOW_MODE` | Observasi keputusan kontekstual tanpa enforcement |
 | `RATF_AUTHZEN_ENABLED` | Membuka evaluation service lintas bahasa |
 | `RATF_AUTHZEN_API_KEY` | Kredensial service-to-service untuk evaluation client |
@@ -31,13 +31,13 @@ Parameter `ratf.policy()`:
 Nilai yang tidak diberikan mewarisi `CoreConfig` global. Profile tidak mengubah
 global config dan akan divalidasi saat aplikasi dimulai.
 
-## Konfigurasi server penelitian lama
+## Konfigurasi melalui environment
 
 | Variabel | Fungsi |
 |---|---|
 | `STRICT_STARTUP` | Menghentikan startup bila secret/threshold tidak valid |
-| `STORAGE_BACKEND` | Redis untuk eksperimen, memory hanya untuk test |
-| `ALLOW_MEMORY_FALLBACK` | Harus false pada eksperimen final |
+| `STORAGE_BACKEND` | Backend `redis` atau `memory` |
+| `ALLOW_MEMORY_FALLBACK` | Mengizinkan fallback lokal; nonaktifkan pada deployment nyata |
 | `REDIS_STARTUP_TIMEOUT_SECONDS` | Batas waktu entrypoint menunggu Redis sebelum Gunicorn dijalankan |
 | `REDIS_STARTUP_INTERVAL_SECONDS` | Jeda antarpercobaan koneksi Redis saat startup |
 | `REPLACE_PREVIOUS_ACCESS_TOKEN` | Mengganti token lama pada family yang sama |
@@ -50,8 +50,15 @@ global config dan akan divalidasi saat aplikasi dimulai.
 | `BURST_*` | Fixed-window rate limit |
 | `ALLOW_THRESHOLD`, `VERIFY_THRESHOLD` | Batas policy |
 | `WEIGHT_*` | Bobot formula trust score |
-| `EXPERIMENT_MODE` | Mengaktifkan header simulasi dengan experiment key |
+| `EXPERIMENT_MODE` | Mengaktifkan header simulasi dengan experiment key untuk pengujian lokal |
 | `TRUST_PROXY_HEADERS` | Jangan aktif kecuali API berada di belakang proxy tepercaya |
 | `LOG_CONTEXT_MODE` | Raw, masked, atau hash |
 
-Jangan mengubah konfigurasi setelah eksperimen utama dimulai. Config fingerprint digunakan untuk mendeteksi perubahan. Aturan pembekuan ini berlaku untuk reproduksi eksperimen, bukan untuk aplikasi pengguna yang memang menggunakan policy per-endpoint.
+Ketika `EXPERIMENT_MODE=true` dan experiment key benar, request dapat memakai
+`X-Test-Source-IP`, `X-Test-Context-Time`, dan `X-Test-User-Agent`. Ketiga header
+tersebut hanya untuk pengujian lokal dan wajib dinonaktifkan pada deployment
+nyata.
+
+Perubahan bobot atau ambang sebaiknya dicatat sebagai perubahan konfigurasi
+aplikasi. Gunakan shadow mode lebih dahulu bila dampaknya terhadap request sah
+belum diketahui.
