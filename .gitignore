@@ -10,8 +10,5 @@ dist/
 .mypy_cache/
 node_modules/
 *.log
-results/*.jsonl
-results/*.csv
-results/*.json
-results/scenario_logs/
-results/final/
+results/
+reports/
