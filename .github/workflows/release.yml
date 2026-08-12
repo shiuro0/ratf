@@ -15,9 +15,12 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
-      - name: Build and check
+      - name: Install release tools and test dependencies
+        run: python -m pip install --upgrade pip && pip install -e ".[demo,test,release]"
+      - name: Run repository checks
+        run: python run_checks.py
+      - name: Build and check distributions
         run: |
-          python -m pip install --upgrade build twine
           python -m build
           python -m twine check dist/*
       - uses: actions/upload-artifact@v7
@@ -28,7 +31,9 @@ jobs:
   publish:
     needs: build
     runs-on: ubuntu-latest
-    environment: pypi
+    environment:
+      name: pypi
+      url: https://pypi.org/p/ratf
     permissions:
       id-token: write
     steps:
