@@ -8,8 +8,8 @@ penggunaan token.
 
 Hasil penilaiannya terdiri dari tiga keputusan:
 
-- `allow`: request dapat diteruskan;
-- `verify`: aplikasi perlu meminta konfirmasi identitas tambahan;
+- `allow`: request dapat diteruskan.
+- `verify`: aplikasi perlu meminta konfirmasi identitas tambahan.
 - `block`: request ditolak.
 
 RATF tidak menggantikan login, OAuth/OIDC, atau Identity Provider. Fungsinya
@@ -19,14 +19,13 @@ adalah menambahkan penilaian kontekstual pada endpoint yang dianggap penting.
 
 Persyaratan minimum:
 
-- Python 3.11 atau lebih baru;
-- aplikasi Flask untuk integrasi;
-- Redis untuk deployment dengan beberapa proses atau server;
-- Identity Provider yang dapat memvalidasi access token pada aplikasi nyata.
+- Python 3.11 atau lebih baru.
+- aplikasi Flask untuk integrasi.
+- Redis untuk deployment dengan beberapa proses atau server.
+- Identity Provider yang dapat memvalidasi access token pada sisi backend.
 
 Showcase lokal dapat langsung berjalan dengan penyimpanan memori dan token
-simulasi, sehingga Redis dan Identity Provider belum diperlukan pada langkah
-pertama.
+simulasi, sehingga Redis dan Identity Provider tidak diperlukan saat menjalankan demonstrasi modul ini.
 
 Pasang paket:
 
@@ -34,7 +33,7 @@ Pasang paket:
 pip install ratf
 ```
 
-Untuk melihat cara kerja modul sebelum mengintegrasikannya, jalankan showcase:
+Untuk melihat cara kerja modul sebelum mengintegrasikannya, jalankan showcase atau demonstrasi:
 
 ```bash
 python -m ratf.showcase
